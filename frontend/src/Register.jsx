@@ -11,14 +11,15 @@ const Register = () => {
     });
     const [message, setMessage] = useState('');
     const [bgImage, setBgImage] = useState('');
+    const [isSubmitHover, setIsSubmitHover] = useState(false);
 
-    // Daily Rotating Background Logic (Keeps the vibe consistent with Login)
     useEffect(() => {
+        // "WINNING & LUXURY" THEME BACKGROUNDS
         const images = [
-            'https://images.unsplash.com/photo-1499750310107-5fef28a66643',
-            'https://images.unsplash.com/photo-1449034446853-66c86144b0ad',
-            'https://images.unsplash.com/photo-1470770841072-f978cf4d019e',
-            'https://images.unsplash.com/photo-1506744038136-46273834b3fb'
+            'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab', // Corporate Empire
+            'https://images.unsplash.com/photo-1559526324-4b87b5e36e44', // Executive Success
+            'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb', // Penthouse View
+            'https://images.unsplash.com/photo-1563720223185-11003d516935'  // High-End Tech
         ];
         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
         setBgImage(images[dayOfYear % images.length]);
@@ -36,113 +37,191 @@ const Register = () => {
         }
 
         try {
-            // Assuming your backend has this route. If not, we will build it next.
             const response = await axios.post('/api/auth/register', {
                 name: formData.name,
                 companyName: formData.companyName,
                 email: formData.email,
                 password: formData.password
             });
-            setMessage('✅ Account created! Redirecting to login...');
+            setMessage('✅ Account created! Redirecting...');
             setTimeout(() => window.location.href = '/', 2000);
         } catch (error) {
             setMessage('❌ Registration failed. Try a different email.');
         }
     };
 
+    // STYLES
+    const inputStyle = {
+        width: '100%',
+        padding: '14px',
+        borderRadius: '8px',
+        border: '1px solid #e1e4e8',
+        fontSize: '15px',
+        boxSizing: 'border-box',
+        backgroundColor: '#f8f9fa',
+        marginBottom: '14px',
+        transition: 'all 0.2s ease',
+        outline: 'none'
+    };
+
+    const orangeBase = '#FF5722';
+    const orangeHover = '#E64A19';
+
     return (
-        <div style={{ display: 'flex', height: '100vh', width: '100vw', fontFamily: '"Segoe UI", Roboto, sans-serif' }}>
+        <div style={{ 
+            position: 'fixed', // THE FIX: Forces this page to sit on top of everything
+            top: 0, 
+            left: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            zIndex: 9999, // High priority to cover the header
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            backgroundImage: `url(${bgImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflowY: 'auto' // Ensures scrolling works if screen is small
+        }}>
             
-            {/* LEFT SIDE: Dynamic Background */}
-            <div style={{
-                flex: '1.2',
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url(${bgImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                padding: '60px',
-                color: 'white'
-            }}>
-                <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block', width: 'fit-content' }}>
-                    <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '20px', cursor: 'pointer' }}>YouTool</h1>
-                </a>
-                <p style={{ fontSize: '1.2rem', maxWidth: '500px', lineHeight: '1.6' }}>
-                    Join thousands of businesses organizing their work with YouTool.
-                </p>
-            </div>
+            {/* CSS HACK: Force Chrome Autofill to match background */}
+            <style>
+                {`
+                    input:-webkit-autofill,
+                    input:-webkit-autofill:hover, 
+                    input:-webkit-autofill:focus, 
+                    input:-webkit-autofill:active{
+                        -webkit-box-shadow: 0 0 0 30px #f8f9fa inset !important;
+                    }
+                `}
+            </style>
 
-            {/* RIGHT SIDE: Registration Form */}
+            {/* DARK LUXURY OVERLAY */}
             <div style={{
-                flex: '0.8',
-                backgroundColor: '#ffffff',
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                backdropFilter: 'blur(3px)'
+            }}></div>
+
+            {/* MAIN CONTENT WRAPPER */}
+            <div style={{
+                position: 'relative',
+                zIndex: 2,
                 display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
+                width: '100%',
+                maxWidth: '1200px',
                 padding: '40px',
-                overflowY: 'auto'
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '80px'
             }}>
-                <div style={{ width: '100%', maxWidth: '400px' }}>
-                    <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}>Create Account</h2>
-                    <p style={{ color: '#777', marginBottom: '25px' }}>Start your 14-day free trial.</p>
+                
+                {/* LEFT SIDE: Vision + Trust */}
+                <div style={{ flex: '1 1 500px', color: 'white', marginTop: '20px' }}>
+                    
+                    <h2 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '20px', lineHeight: '1.1' }}>
+                        Manage Everything.<br/>
+                        <span style={{ color: orangeBase }}>Achieve More.</span>
+                    </h2>
+                    
+                    <p style={{ fontSize: '1.4rem', opacity: 0.95, maxWidth: '500px', lineHeight: '1.6', marginBottom: '45px', fontWeight: '300', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                        The all-in-one workspace for those who demand success. Join today and elevate your business.
+                    </p>
 
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    {/* TRUST LIST */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <div style={{ 
+                                width: '32px', height: '32px', borderRadius: '50%', 
+                                backgroundColor: 'rgba(255, 87, 34, 0.15)', border: `1px solid ${orangeBase}`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', color: orangeBase, fontWeight: 'bold'
+                            }}>✓</div>
+                            <div>
+                                <span style={{ display: 'block', fontSize: '16px', fontWeight: '600' }}>No Credit Card Required</span>
+                                <span style={{ display: 'block', fontSize: '13px', opacity: 0.8 }}>Start your 14-day free trial instantly</span>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <div style={{ 
+                                width: '32px', height: '32px', borderRadius: '50%', 
+                                backgroundColor: 'rgba(255, 87, 34, 0.15)', border: `1px solid ${orangeBase}`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', color: orangeBase, fontWeight: 'bold'
+                            }}>✓</div>
+                            <div>
+                                <span style={{ display: 'block', fontSize: '16px', fontWeight: '600' }}>Full Feature Access</span>
+                                <span style={{ display: 'block', fontSize: '13px', opacity: 0.8 }}>CRM, Invoicing, and Analytics included</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* RIGHT SIDE: The Form Card */}
+                <div style={{
+                    flex: '0 0 440px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '16px',
+                    padding: '45px',
+                    boxShadow: '0 40px 60px -12px rgba(0, 0, 0, 0.7)',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                    <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                        <h3 style={{ fontSize: '2rem', fontWeight: '800', color: '#1a202c', margin: 0, letterSpacing: '-0.5px' }}>Get Started</h3>
+                        <p style={{ color: '#718096', marginTop: '8px', fontSize: '15px', fontStyle: 'italic' }}>And never stop.</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit}>
+                        <input type="text" name="name" onChange={handleChange} placeholder="Full Name" style={inputStyle} required />
+                        <input type="text" name="companyName" onChange={handleChange} placeholder="Company Name" style={inputStyle} required />
+                        <input type="email" name="email" onChange={handleChange} placeholder="Enter your email" style={inputStyle} required />
                         
-                        {/* Name Field */}
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#555' }}>Full Name</label>
-                            <input type="text" name="name" onChange={handleChange} required
-                                style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-                        </div>
-
-                        {/* Company Field */}
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#555' }}>Company Name</label>
-                            <input type="text" name="companyName" onChange={handleChange} required
-                                style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-                        </div>
-
-                        {/* Email Field */}
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#555' }}>Work Email</label>
-                            <input type="email" name="email" onChange={handleChange} required
-                                style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-                        </div>
-
-                        {/* Password Fields */}
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <div style={{ flex: 1 }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#555' }}>Password</label>
-                                <input type="password" name="password" onChange={handleChange} required
-                                    style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#555' }}>Confirm</label>
-                                <input type="password" name="confirmPassword" onChange={handleChange} required
-                                    style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-                            </div>
+                            <input type="password" name="password" onChange={handleChange} placeholder="Password" style={inputStyle} required />
+                            <input type="password" name="confirmPassword" onChange={handleChange} placeholder="Confirm" style={inputStyle} required />
                         </div>
 
-                        <button type="submit" style={{ 
-                            width: '100%', padding: '14px', backgroundColor: '#007bff', color: 'white', 
-                            border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold', marginTop: '10px' 
-                        }}>
-                            Get Started
+                        {/* ORANGE BUTTON */}
+                        <button type="submit" 
+                            style={{ 
+                                width: '100%', 
+                                padding: '16px', 
+                                backgroundColor: isSubmitHover ? orangeHover : orangeBase, 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '8px', 
+                                cursor: 'pointer', 
+                                fontSize: '16px', 
+                                fontWeight: '700',
+                                marginTop: '20px',
+                                transition: 'all 0.2s',
+                                boxShadow: isSubmitHover ? `0 10px 20px -5px rgba(255, 87, 34, 0.5)` : `0 4px 10px -2px rgba(255, 87, 34, 0.3)`,
+                                transform: isSubmitHover ? 'translateY(-2px)' : 'translateY(0)'
+                            }}
+                            onMouseEnter={() => setIsSubmitHover(true)} onMouseLeave={() => setIsSubmitHover(false)}
+                        >
+                            Create Account
                         </button>
                     </form>
 
-                    {message && (
-                        <p style={{ marginTop: '20px', padding: '10px', borderRadius: '4px', textAlign: 'center', backgroundColor: message.includes('✅') ? '#e6fffa' : '#fff5f5', color: message.includes('✅') ? '#2c7a7b' : '#c53030', border: '1px solid currentColor' }}>
-                            {message}
-                        </p>
-                    )}
-
-                    <div style={{ marginTop: '30px', textAlign: 'center' }}>
-                        <p style={{ color: '#666' }}>
-                            Already have an account? <a href="/" style={{ color: '#007bff', textDecoration: 'none', fontWeight: 'bold' }}>Sign In</a>
-                        </p>
+                    <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center',
+                        marginTop: '30px', 
+                        paddingTop: '20px',
+                        borderTop: '1px solid #edf2f7',
+                        fontSize: '14px', 
+                        gap: '15px',
+                        color: '#cbd5e0'
+                    }}>
+                        <a href="/" style={{ color: orangeBase, textDecoration: 'none', fontWeight: '600' }}>Sign In</a>
+                        <span>|</span>
+                        <a href="/login-assistance" style={{ color: '#718096', textDecoration: 'none', transition: 'color 0.2s' }}>Login Assistance</a>
+                        <span>|</span>
+                        <a href="/demo" style={{ color: '#718096', textDecoration: 'none', transition: 'color 0.2s' }}>Request a demo</a>
                     </div>
                 </div>
             </div>
