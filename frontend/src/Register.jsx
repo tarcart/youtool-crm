@@ -69,12 +69,12 @@ const Register = () => {
 
     return (
         <div style={{ 
-            position: 'fixed', // THE FIX: Forces this page to sit on top of everything
+            position: 'fixed', // Forces page to cover the global header
             top: 0, 
             left: 0, 
             width: '100vw', 
             height: '100vh', 
-            zIndex: 9999, // High priority to cover the header
+            zIndex: 9999, 
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             backgroundImage: `url(${bgImage})`,
             backgroundSize: 'cover',
@@ -82,10 +82,9 @@ const Register = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            overflowY: 'auto' // Ensures scrolling works if screen is small
+            overflowY: 'auto'
         }}>
             
-            {/* CSS HACK: Force Chrome Autofill to match background */}
             <style>
                 {`
                     input:-webkit-autofill,
@@ -120,7 +119,14 @@ const Register = () => {
             }}>
                 
                 {/* LEFT SIDE: Vision + Trust */}
-                <div style={{ flex: '1 1 500px', color: 'white', marginTop: '20px' }}>
+                <div style={{ flex: '1 1 500px', color: 'white', marginTop: '0px' }}>
+                    
+                    {/* LOGO IS BACK */}
+                    <div style={{ marginBottom: '30px' }}>
+                        <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block' }}>
+                            <h1 style={{ fontSize: '3.5rem', fontWeight: '900', margin: 0, letterSpacing: '-1.5px', cursor: 'pointer' }}>YouTool</h1>
+                        </a>
+                    </div>
                     
                     <h2 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '20px', lineHeight: '1.1' }}>
                         Manage Everything.<br/>
