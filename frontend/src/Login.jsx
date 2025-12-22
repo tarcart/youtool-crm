@@ -3,15 +3,15 @@ import axios from 'axios';
 
 const Login = ({ onLoginSuccess }) => {
     // Pre-filled with your test user for convenience
-    const [email, setEmail] = useState('admin@techcorp.com');
-    const [password, setPassword] = useState('SecurePassword123');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             // This hits the login route you just finished in the backend
-            const response = await axios.post('http://localhost:5001/api/auth/login', {
+            const response = await axios.post('/api/auth/login', {
     email,
     password
 });

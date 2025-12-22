@@ -12,8 +12,8 @@ const Opportunities = () => {
         const headers = { Authorization: `Bearer ${token}` };
         try {
             const [oppRes, contactRes] = await Promise.all([
-                axios.get('http://localhost:5001/api/opportunities', { headers }),
-                axios.get('http://localhost:5001/api/contacts', { headers })
+                axios.get('/api/opportunities', { headers }),
+                axios.get('/api/contacts', { headers })
             ]);
             setOpps(oppRes.data);
             setContacts(contactRes.data);
@@ -31,7 +31,7 @@ const Opportunities = () => {
             contactId: parseInt(newOpp.contactId) 
         };
         try {
-            await axios.post('http://localhost:5001/api/opportunities', payload, {
+            await axios.post('/api/opportunities', payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setIsModalOpen(false);

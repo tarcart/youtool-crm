@@ -10,7 +10,7 @@ const Organizations = () => {
     const fetchOrgs = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5001/api/organizations', {
+            const res = await axios.get('/api/organizations', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setOrgs(res.data);
@@ -28,7 +28,7 @@ const Organizations = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5001/api/organizations', newOrg, {
+            await axios.post('/api/organizations', newOrg, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setIsModalOpen(false); // Close the modal

@@ -19,7 +19,7 @@ const LinkModal = ({ isOpen, onClose, targetType, sourceItem, options, refresh }
             const fieldName = fieldMap[targetType];
             
             // Send update to the current record to link the selected item
-            await axios.put(`http://localhost:5001/api/${sourceItem.type}/${sourceItem.data.id}`, 
+            await axios.put(`/api/${sourceItem.type}/${sourceItem.data.id}`, 
                 { [fieldName]: parseInt(selectedId) }, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );

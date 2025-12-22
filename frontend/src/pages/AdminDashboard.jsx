@@ -14,7 +14,7 @@ const AdminDashboard = () => {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
     };
-    const baseUrl = 'http://localhost:5001/api';
+    const baseUrl = '/api';
 
     // 3. FETCH
     const fetchData = async () => {

@@ -9,7 +9,7 @@ const LogActivityForm = ({ contactId, onActivityAdded }) => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5001/api/activities', 
+            await axios.post('/api/activities', 
                 { contactId, type, description },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

@@ -116,7 +116,7 @@ const CreateModal = ({
         try {
             const token = localStorage.getItem('token');
             const type = activeSubModal === 'Contact' ? 'contacts' : 'organizations';
-            const response = await axios.post(`http://localhost:5001/api/${type}`, subModalFields, { headers: { Authorization: `Bearer ${token}` } });
+            const response = await axios.post(`/api/${type}`, subModalFields, { headers: { Authorization: `Bearer ${token}` } });
             const savedRecord = response.data;
             const nameToRetain = activeSubModal === 'Contact' ? `${savedRecord.firstName} ${savedRecord.lastName}`.trim() : savedRecord.name;
             setNewData(p => ({ ...p, rel2_box2: nameToRetain }));
@@ -141,7 +141,7 @@ const CreateModal = ({
             } else if (activeTab === 'projects') {
                 payload = { name: newData.proj_name, startDate: newData.proj_startDate, endDate: newData.proj_endDate };
             }
-            await axios.post(`http://localhost:5001/api/${activeTab}`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.post(`/api/${activeTab}`, payload, { headers: { Authorization: `Bearer ${token}` } });
             refresh(); showToast("Saved successfully!");
             setTimeout(() => onClose(), 800); 
         } catch (err) { showToast("Save failed: " + err.message, 'error'); 

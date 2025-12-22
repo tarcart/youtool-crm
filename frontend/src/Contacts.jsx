@@ -12,7 +12,7 @@ const Contacts = () => {
     const fetchContacts = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5001/api/contacts', {
+            const res = await axios.get('/api/contacts', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setContacts(res.data);
@@ -26,7 +26,7 @@ const Contacts = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5001/api/contacts', newContact, {
+            await axios.post('/api/contacts', newContact, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setIsModalOpen(false); // Close modal

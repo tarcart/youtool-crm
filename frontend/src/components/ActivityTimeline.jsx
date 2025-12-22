@@ -9,7 +9,7 @@ const ActivityTimeline = ({ contactId }) => {
     const fetchActivities = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`http://localhost:5001/api/activities/contact/${contactId}`, {
+            const res = await axios.get(`/api/activities/contact/${contactId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setActivities(res.data);

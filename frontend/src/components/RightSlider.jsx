@@ -118,7 +118,7 @@ const RightSlider = ({ selectedItem, onClose, refresh, allContacts = [], allOrgs
             const token = localStorage.getItem('token');
             const payload = { ...formData };
             if (payload.value) payload.value = parseFloat(payload.value.toString().replace(/[^0-9.]/g, ""));
-            await axios.put(`http://localhost:5001/api/${type}/${data.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.put(`/api/${type}/${data.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
             refresh(); setHasChanges(false);
         } catch (e) { alert("Save failed"); } finally { setSaving(false); }
     };

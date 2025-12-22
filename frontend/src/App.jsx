@@ -112,7 +112,7 @@ const MainAppLayout = ({ user, onLogout }) => {
         try {
             const token = localStorage.getItem('token');
             const headers = { Authorization: `Bearer ${token}` };
-            const baseUrl = 'http://localhost:5001/api';
+            const baseUrl = '/api';
             const [cRes, oRes, oppRes, pRes, tRes] = await Promise.all([
                 axios.get(`${baseUrl}/contacts?search=${searchQuery}`, { headers }),
                 axios.get(`${baseUrl}/organizations`, { headers }),
@@ -141,7 +141,7 @@ const MainAppLayout = ({ user, onLogout }) => {
         if (!window.confirm(`Delete ${selectedIds.length} items?`)) return;
         try {
             const token = localStorage.getItem('token');
-            await Promise.all(selectedIds.map(id => axios.delete(`http://localhost:5001/api/${activeTab}/${id}`, { headers: { Authorization: `Bearer ${token}` } })));
+            await Promise.all(selectedIds.map(id => axios.delete(`/api/${activeTab}/${id}`, { headers: { Authorization: `Bearer ${token}` } })));
             setSelectedIds([]); fetchData();
         } catch (err) { alert("Bulk delete failed."); }
     };
