@@ -11,7 +11,6 @@ const Login = ({ onLoginSuccess }) => {
     const [isGoogleHover, setIsGoogleHover] = useState(false);
     const [isMicrosoftHover, setIsMicrosoftHover] = useState(false);
     const [isSignInHover, setIsSignInHover] = useState(false);
-    const [isSignUpHover, setIsSignUpHover] = useState(false);
 
     useEffect(() => {
         const images = [
@@ -26,13 +25,22 @@ const Login = ({ onLoginSuccess }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setMessage(''); // Clear previous messages
         try {
             const response = await axios.post('/api/auth/login', { email, password });
+            
             localStorage.setItem('token', response.data.token);
-            setMessage(`✅ Success! Welcome to ${response.data.user.companyName}`);
-            if (onLoginSuccess) onLoginSuccess(response.data.user);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+
+            setMessage(`✅ Success! Welcome back, ${response.data.user.name.split(' ')[0]}.`);
+            
+            setTimeout(() => {
+                if (onLoginSuccess) onLoginSuccess(response.data.user);
+                window.location.href = '/dashboard';
+            }, 1000);
+
         } catch (error) {
-            setMessage('❌ Login failed. Check your credentials.');
+            setMessage('⚠️ Login failed. Check your credentials.');
         }
     };
 
@@ -112,9 +120,14 @@ const Login = ({ onLoginSuccess }) => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: '40px',
-                overflowY: 'auto'
+                overflowY: 'auto',
+                // Extra padding at bottom allows scrolling if the error box hangs low on small screens
+                paddingBottom: '120px' 
             }}>
-                <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+                {/* CONTENT CONTAINER 
+                    position: relative -> This is the ANCHOR. The error box will hang off the bottom of this div.
+                */}
+                <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center', position: 'relative' }}>
                     
                     {/* LOGO HEADER */}
                     <div style={{ marginBottom: '40px' }}>
@@ -194,46 +207,96 @@ const Login = ({ onLoginSuccess }) => {
                             fontSize: '15px', 
                             gap: '15px' 
                         }}>
-                            <a href="/login-assistance" style={{ color: '#444', textDecoration: 'none', fontWeight: '500', transition: 'color 0.2s' }} 
+                            <a href="/forgot-password" style={{ color: '#444', textDecoration: 'none', fontWeight: '500', transition: 'color 0.2s' }} 
                                onMouseOver={(e) => e.target.style.color = '#0366d6'} 
                                onMouseOut={(e) => e.target.style.color = '#444'}>
-                               Login Assistance
+                               Forgot Password?
                             </a>
                             <span style={{ color: '#ccc' }}>|</span>
-                            <a href="/demo" style={{ color: '#0366d6', textDecoration: 'none', fontWeight: '500' }}
+                            <a href="/register" style={{ color: '#0366d6', textDecoration: 'none', fontWeight: '500' }}
                                onMouseOver={(e) => e.target.style.textDecoration = 'underline'} 
                                onMouseOut={(e) => e.target.style.textDecoration = 'none'}>
-                               Request a demo
+                               Create an account
                             </a>
                         </div>
                     </form>
 
-                    {/* SIGN UP BUTTON - BOLDER & BETTER */}
-                    <div style={{ marginTop: '50px' }}>
-                         <button type="button" 
-                            style={{
-                                width: '100%',
-                                padding: '14px',
-                                backgroundColor: isSignUpHover ? '#f1f8ff' : 'transparent',
-                                color: '#0366d6',
-                                border: '2px solid #0366d6', // Thicker border
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '16px',
-                                fontWeight: '700', // Bolder text
-                                transition: 'all 0.2s'
-                            }}
-                            onClick={() => window.location.href='/register'}
-                            onMouseEnter={() => setIsSignUpHover(true)} onMouseLeave={() => setIsSignUpHover(false)}
-                        >
-                            Sign Up
-                        </button>
-                    </div>
-
+                    {/* ERROR MESSAGE (THE SPRUCED UP VERSION) 
+                        It is absolute positioned relative to the FORM container above.
+                        This keeps it locked to the bottom of the links, but prevents "jumping".
+                    */}
                     {message && (
-                        <p style={{ marginTop: '20px', padding: '12px', borderRadius: '8px', textAlign: 'center', backgroundColor: message.includes('✅') ? '#f0fff4' : '#ffebe9', color: message.includes('✅') ? '#22863a' : '#d73a49', border: `1px solid ${message.includes('✅') ? '#22863a' : '#d73a49'}`, fontSize: '14px' }}>
-                            {message}
-                        </p>
+                        <div style={{ 
+                            position: 'absolute',
+                            top: '100%', // Pushes it exactly below the links
+                            left: 0,
+                            width: '100%',
+                            marginTop: '25px', // Little bit of breathing room
+                            padding: '16px', 
+                            paddingRight: '35px', 
+                            borderRadius: '6px', // Sleek corners
+                            textAlign: 'center', 
+                            
+                            // MODERN STYLE
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #edf2f7',
+                            borderLeft: `5px solid ${message.includes('✅') ? '#22863a' : '#d73a49'}`, // Accent Bar
+                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', // Nice shadow
+                            
+                            color: '#2d3748',
+                            fontSize: '14px',
+                            animation: 'slideUp 0.3s ease-out',
+                            zIndex: 10
+                        }}>
+                            
+                            {/* ANIMATION KEYFRAMES */}
+                            <style>{`
+                                @keyframes slideUp {
+                                    from { opacity: 0; transform: translateY(10px); }
+                                    to { opacity: 1; transform: translateY(0); }
+                                }
+                            `}</style>
+
+                            {/* CLOSE BUTTON */}
+                            <span 
+                                onClick={() => setMessage('')} 
+                                style={{
+                                    position: 'absolute',
+                                    top: '8px',
+                                    right: '10px',
+                                    cursor: 'pointer',
+                                    fontSize: '18px',
+                                    fontWeight: 'bold',
+                                    lineHeight: '1',
+                                    color: '#a0aec0',
+                                    transition: 'color 0.2s'
+                                }}
+                                onMouseOver={(e) => e.target.style.color = '#4a5568'}
+                                onMouseOut={(e) => e.target.style.color = '#a0aec0'}
+                            >
+                                ✕
+                            </span>
+
+                            <div style={{ fontWeight: '600', marginBottom: message.includes('✅') ? '0' : '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                {/* Icon is part of the text now for better alignment */}
+                                <span>{message}</span>
+                            </div>
+
+                            {!message.includes('✅') && (
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'center', 
+                                    gap: '15px', 
+                                    fontSize: '13px', 
+                                    marginTop: '8px',
+                                    paddingTop: '8px',
+                                    borderTop: '1px solid #edf2f7'
+                                }}>
+                                    <a href="/forgot-password" style={{ color: '#d73a49', textDecoration: 'none', fontWeight: '600' }} onMouseOver={(e) => e.target.style.textDecoration='underline'} onMouseOut={(e) => e.target.style.textDecoration='none'}>Reset Password</a>
+                                    <a href="/support" style={{ color: '#718096', textDecoration: 'none', fontWeight: '600' }} onMouseOver={(e) => e.target.style.textDecoration='underline'} onMouseOut={(e) => e.target.style.textDecoration='none'}>Contact Support</a>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

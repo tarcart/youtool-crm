@@ -10,16 +10,17 @@ const Register = () => {
         confirmPassword: ''
     });
     const [message, setMessage] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
     const [bgImage, setBgImage] = useState('');
     const [isSubmitHover, setIsSubmitHover] = useState(false);
 
     useEffect(() => {
         // "WINNING & LUXURY" THEME BACKGROUNDS
         const images = [
-            'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab', // Corporate Empire
-            'https://images.unsplash.com/photo-1559526324-4b87b5e36e44', // Executive Success
-            'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb', // Penthouse View
-            'https://images.unsplash.com/photo-1563720223185-11003d516935'  // High-End Tech
+            'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab', 
+            'https://images.unsplash.com/photo-1559526324-4b87b5e36e44', 
+            'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb', 
+            'https://images.unsplash.com/photo-1563720223185-11003d516935'
         ];
         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
         setBgImage(images[dayOfYear % images.length]);
@@ -31,22 +32,44 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setMessage(''); 
+        
         if (formData.password !== formData.confirmPassword) {
+            setIsSuccess(false);
             setMessage('❌ Passwords do not match');
             return;
         }
 
         try {
-            const response = await axios.post('/api/auth/register', {
+            // Register the user (creates inactive account)
+            await axios.post('/api/auth/register', {
                 name: formData.name,
                 companyName: formData.companyName,
                 email: formData.email,
                 password: formData.password
             });
-            setMessage('✅ Account created! Redirecting...');
-            setTimeout(() => window.location.href = '/', 2000);
+
+            // SUCCESS!
+            setIsSuccess(true);
+            setMessage('✅ Account created! Please check your email to verify.');
+            
+            // Clear the form so they can't submit twice
+            setFormData({
+                name: '',
+                companyName: '',
+                email: '',
+                password: '',
+                confirmPassword: ''
+            });
+            
+            // WE DO NOT REDIRECT TO DASHBOARD ANYMORE
+            // They must verify email first.
+
         } catch (error) {
-            setMessage('❌ Registration failed. Try a different email.');
+            console.error("Registration Error:", error);
+            setIsSuccess(false);
+            const errorMsg = error.response?.data?.error || 'Registration failed.';
+            setMessage(`❌ ${errorMsg}`);
         }
     };
 
@@ -69,7 +92,7 @@ const Register = () => {
 
     return (
         <div style={{ 
-            position: 'fixed', // Forces page to cover the global header
+            position: 'fixed', 
             top: 0, 
             left: 0, 
             width: '100vw', 
@@ -121,7 +144,6 @@ const Register = () => {
                 {/* LEFT SIDE: Vision + Trust */}
                 <div style={{ flex: '1 1 500px', color: 'white', marginTop: '0px' }}>
                     
-                    {/* LOGO IS BACK */}
                     <div style={{ marginBottom: '30px' }}>
                         <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block' }}>
                             <h1 style={{ fontSize: '3.5rem', fontWeight: '900', margin: 0, letterSpacing: '-1.5px', cursor: 'pointer' }}>YouTool</h1>
@@ -180,16 +202,32 @@ const Register = () => {
                     </div>
 
                     <form onSubmit={handleSubmit}>
-                        <input type="text" name="name" onChange={handleChange} placeholder="Full Name" style={inputStyle} required />
-                        <input type="text" name="companyName" onChange={handleChange} placeholder="Company Name" style={inputStyle} required />
-                        <input type="email" name="email" onChange={handleChange} placeholder="Enter your email" style={inputStyle} required />
+                        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" style={inputStyle} required />
+                        <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="Company Name" style={inputStyle} required />
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Enter your email" style={inputStyle} required />
                         
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <input type="password" name="password" onChange={handleChange} placeholder="Password" style={inputStyle} required />
-                            <input type="password" name="confirmPassword" onChange={handleChange} placeholder="Confirm" style={inputStyle} required />
+                            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" style={inputStyle} required />
+                            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirm" style={inputStyle} required />
                         </div>
 
-                        {/* ORANGE BUTTON */}
+                        {/* MESSAGE DISPLAY BLOCK */}
+                        {message && (
+                            <div style={{
+                                padding: '12px',
+                                marginBottom: '15px',
+                                borderRadius: '6px',
+                                backgroundColor: isSuccess ? '#f0fff4' : '#fff5f5',
+                                color: isSuccess ? '#2f855a' : '#c53030',
+                                border: `1px solid ${isSuccess ? '#9ae6b4' : '#feb2b2'}`,
+                                fontSize: '14px',
+                                textAlign: 'center',
+                                fontWeight: '500'
+                            }}>
+                                {message}
+                            </div>
+                        )}
+
                         <button type="submit" 
                             style={{ 
                                 width: '100%', 
@@ -201,7 +239,7 @@ const Register = () => {
                                 cursor: 'pointer', 
                                 fontSize: '16px', 
                                 fontWeight: '700',
-                                marginTop: '20px',
+                                marginTop: '10px',
                                 transition: 'all 0.2s',
                                 boxShadow: isSubmitHover ? `0 10px 20px -5px rgba(255, 87, 34, 0.5)` : `0 4px 10px -2px rgba(255, 87, 34, 0.3)`,
                                 transform: isSubmitHover ? 'translateY(-2px)' : 'translateY(0)'
@@ -212,6 +250,7 @@ const Register = () => {
                         </button>
                     </form>
 
+                    {/* FOOTER LINKS */}
                     <div style={{ 
                         display: 'flex', 
                         justifyContent: 'center', 
@@ -223,7 +262,7 @@ const Register = () => {
                         gap: '15px',
                         color: '#cbd5e0'
                     }}>
-                        <a href="/" style={{ color: orangeBase, textDecoration: 'none', fontWeight: '600' }}>Sign In</a>
+                        <a href="/login" style={{ color: orangeBase, textDecoration: 'none', fontWeight: '600' }}>Sign In</a>
                         <span>|</span>
                         <a href="/login-assistance" style={{ color: '#718096', textDecoration: 'none', transition: 'color 0.2s' }}>Login Assistance</a>
                         <span>|</span>

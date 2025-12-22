@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate, useLocation, Link } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 // LAYOUTS
@@ -15,6 +15,7 @@ import PricingPage from './pages/PricingPage';
 import ContactPage from './pages/ContactPage';
 import FeaturesPage from './pages/FeaturesPage';
 import Register from './Register';
+import VerifyEmail from './pages/VerifyEmail'; 
 
 // COMPONENTS
 import CreateModal from './components/CreateModal';
@@ -61,12 +62,12 @@ const App = () => {
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/features" element={<FeaturesPage />} />
                 <Route path="/contact" element={<ContactPage />} />
-<Route path="/register" element={<Register />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
             </Route>
 
-            {/* AUTH */}
+            {/* AUTH (LOGIN ONLY) */}
             <Route path="/login" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
-            <Route path="/register" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
 
             {/* DASHBOARD */}
             <Route path="/dashboard/*" element={
@@ -75,14 +76,14 @@ const App = () => {
                 </ProtectedRoute>
             } />
             
-            {/* ADMIN */}
+            {/* ADMIN DASHBOARD (SUPER ADMIN ONLY) */}
             <Route path="/admin" element={
                 <ProtectedRoute>
                     {user?.role === 'SUPER_ADMIN' ? (
                         <div style={{ display: 'flex' }}>
                             <div style={{width: '240px', background: '#fff', height: '100vh', borderRight: '1px solid #ddd', padding:'20px'}}>
                                 <h2 style={{color: '#d94d11'}}>Admin</h2>
-                                <button onClick={() => navigate('/dashboard')} style={{marginTop:'20px', cursor:'pointer'}}>Back to CRM</button>
+                                <button onClick={() => navigate('/dashboard')} style={{marginTop:'20px', cursor:'pointer', padding: '10px', width: '100%'}}>Back to CRM</button>
                             </div>
                             <div style={{flex: 1}}><AdminDashboard /></div>
                         </div>
@@ -93,7 +94,7 @@ const App = () => {
     );
 };
 
-// --- CRM LAYOUT ---
+// --- CRM LAYOUT (FULLY RESTORED) ---
 const MainAppLayout = ({ user, onLogout }) => {
     const [activeTab, setActiveTab] = useState('home');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
@@ -106,7 +107,6 @@ const MainAppLayout = ({ user, onLogout }) => {
     const [selectedIds, setSelectedIds] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [actionMenuOpenId, setActionMenuOpenId] = useState(null);
     const navigate = useNavigate();
 
     const fetchData = async () => {
