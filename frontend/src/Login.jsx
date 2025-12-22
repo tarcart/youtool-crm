@@ -7,13 +7,12 @@ const Login = ({ onLoginSuccess }) => {
     const [message, setMessage] = useState('');
     const [bgImage, setBgImage] = useState('');
 
-    // Daily Rotating Background Logic
     useEffect(() => {
         const images = [
-            'https://images.unsplash.com/photo-1499750310107-5fef28a66643', // Clean desk with plant and lake view
-            'https://images.unsplash.com/photo-1449034446853-66c86144b0ad', // Golden Gate/Scenic Bridge
-            'https://images.unsplash.com/photo-1470770841072-f978cf4d019e', // Calm coastal house
-            'https://images.unsplash.com/photo-1506744038136-46273834b3fb'  // Yosemite Valley Vista
+            'https://images.unsplash.com/photo-1499750310107-5fef28a66643',
+            'https://images.unsplash.com/photo-1449034446853-66c86144b0ad',
+            'https://images.unsplash.com/photo-1470770841072-f978cf4d019e',
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb'
         ];
         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
         setBgImage(images[dayOfYear % images.length]);
@@ -31,7 +30,6 @@ const Login = ({ onLoginSuccess }) => {
         }
     };
 
-    // Reusable Button Style
     const ssoButtonStyle = {
         display: 'flex',
         alignItems: 'center',
@@ -47,6 +45,20 @@ const Login = ({ onLoginSuccess }) => {
         transition: 'all 0.2s ease'
     };
 
+    const secondaryButtonStyle = {
+        width: '100%',
+        padding: '12px',
+        backgroundColor: 'transparent',
+        color: '#007bff',
+        border: '2px solid #007bff',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        marginTop: '10px',
+        transition: 'all 0.3s'
+    };
+
     return (
         <div style={{ display: 'flex', height: '100vh', width: '100vw', fontFamily: '"Segoe UI", Roboto, sans-serif' }}>
             
@@ -60,10 +72,12 @@ const Login = ({ onLoginSuccess }) => {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 padding: '60px',
-                color: 'white',
-                transition: 'background-image 1s ease-in-out'
+                color: 'white'
             }}>
-                <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '20px' }}>YouTool</h1>
+                {/* 1. HOT LOGO: Clicks back to home */}
+                <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block', width: 'fit-content' }}>
+                    <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '20px', cursor: 'pointer' }}>YouTool</h1>
+                </a>
                 <p style={{ fontSize: '1.2rem', maxWidth: '500px', lineHeight: '1.6' }}>
                     Managing your business shouldn't be hard. Log in to access your ultimate workspace.
                 </p>
@@ -77,42 +91,31 @@ const Login = ({ onLoginSuccess }) => {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                padding: '40px'
+                padding: '40px',
+                overflowY: 'auto'
             }}>
                 <div style={{ width: '100%', maxWidth: '380px' }}>
                     <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}>Sign In</h2>
                     <p style={{ color: '#777', marginBottom: '30px' }}>Welcome back! Please enter your details.</p>
 
-                    {/* SSO BUTTONS SECTION */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '25px' }}>
-                        <button 
-                            type="button"
-                            style={ssoButtonStyle}
-                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                        >
+                        <button type="button" style={ssoButtonStyle}>
                             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{width: '18px', marginRight: '10px'}} />
                             Continue with Google
                         </button>
-                        <button 
-                            type="button"
-                            style={ssoButtonStyle}
-                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                        >
+                        <button type="button" style={ssoButtonStyle}>
                             <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" style={{width: '18px', marginRight: '10px'}} />
                             Continue with Microsoft
                         </button>
                     </div>
 
-                    {/* DIVIDER */}
                     <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', color: '#eee' }}>
                         <hr style={{ flex: 1, border: '0.5px solid #eee' }} />
                         <span style={{ padding: '0 10px', fontSize: '12px', color: '#999', fontWeight: 'bold' }}>OR</span>
                         <hr style={{ flex: 1, border: '0.5px solid #eee' }} />
                     </div>
 
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <div>
                             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#555' }}>Work Email</label>
                             <input 
@@ -137,6 +140,11 @@ const Login = ({ onLoginSuccess }) => {
                             />
                         </div>
 
+                        {/* 2. PASSWORD RESET LINK */}
+                        <div style={{ textAlign: 'right' }}>
+                            <a href="/forgot-password" style={{ color: '#007bff', fontSize: '14px', textDecoration: 'none', fontWeight: '500' }}>Forgot password?</a>
+                        </div>
+
                         <button type="submit" style={{ 
                             width: '100%', 
                             padding: '14px', 
@@ -147,35 +155,27 @@ const Login = ({ onLoginSuccess }) => {
                             cursor: 'pointer', 
                             fontSize: '16px', 
                             fontWeight: 'bold',
-                            transition: 'background 0.3s'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#007bff'}
-                        >
+                            marginTop: '10px'
+                        }}>
                             Sign In
+                        </button>
+
+                        {/* 3. SIGN UP BUTTON */}
+                        <button type="button" style={secondaryButtonStyle} onClick={() => window.location.href='/register'}>
+                            Create Free Account
+                        </button>
+
+                        {/* 4. REQUEST DEMO BUTTON */}
+                        <button type="button" style={{ ...secondaryButtonStyle, border: 'none', color: '#666', fontSize: '14px', marginTop: '0' }} onClick={() => window.location.href='/demo'}>
+                            Questions? Request a Demo
                         </button>
                     </form>
 
                     {message && (
-                        <p style={{ 
-                            marginTop: '20px', 
-                            padding: '10px', 
-                            borderRadius: '4px', 
-                            textAlign: 'center', 
-                            backgroundColor: message.includes('✅') ? '#e6fffa' : '#fff5f5',
-                            color: message.includes('✅') ? '#2c7a7b' : '#c53030',
-                            border: `1px solid ${message.includes('✅') ? '#b2f5ea' : '#feb2b2'}`,
-                            fontSize: '14px'
-                        }}>
+                        <p style={{ marginTop: '20px', padding: '10px', borderRadius: '4px', textAlign: 'center', backgroundColor: message.includes('✅') ? '#e6fffa' : '#fff5f5', color: message.includes('✅') ? '#2c7a7b' : '#c53030', border: '1px solid currentColor', fontSize: '14px' }}>
                             {message}
                         </p>
                     )}
-
-                    <div style={{ marginTop: '40px', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '20px' }}>
-                        <p style={{ color: '#999', fontSize: '14px' }}>
-                            Need help? <span style={{ color: '#007bff', cursor: 'pointer', fontWeight: '600' }}>Contact Support</span>
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>
