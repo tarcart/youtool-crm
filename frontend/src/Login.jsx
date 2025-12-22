@@ -7,6 +7,12 @@ const Login = ({ onLoginSuccess }) => {
     const [message, setMessage] = useState('');
     const [bgImage, setBgImage] = useState('');
 
+    // HOVER STATES
+    const [isGoogleHover, setIsGoogleHover] = useState(false);
+    const [isMicrosoftHover, setIsMicrosoftHover] = useState(false);
+    const [isSignInHover, setIsSignInHover] = useState(false);
+    const [isSignUpHover, setIsSignUpHover] = useState(false);
+
     useEffect(() => {
         const images = [
             'https://images.unsplash.com/photo-1499750310107-5fef28a66643',
@@ -30,60 +36,74 @@ const Login = ({ onLoginSuccess }) => {
         }
     };
 
-    const ssoButtonStyle = {
+    // STYLES
+    const ssoButtonStyle = (isHover) => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '12px',
-        borderRadius: '6px',
-        border: '1px solid #ddd',
-        backgroundColor: '#fff',
+        borderRadius: '8px',
+        border: '1px solid #e1e4e8',
+        backgroundColor: isHover ? '#f8f9fa' : '#ffffff',
         cursor: 'pointer',
-        fontSize: '14px',
+        fontSize: '15px',
         fontWeight: '500',
         width: '100%',
-        transition: 'all 0.2s ease'
-    };
+        transition: 'all 0.2s ease',
+        marginBottom: '12px',
+        color: '#24292e',
+        boxShadow: isHover ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
+    });
 
-    const secondaryButtonStyle = {
+    const inputStyle = {
         width: '100%',
-        padding: '12px',
-        backgroundColor: 'transparent',
-        color: '#007bff',
-        border: '2px solid #007bff',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        fontSize: '16px',
-        fontWeight: 'bold',
-        marginTop: '10px',
-        transition: 'all 0.3s'
+        padding: '14px',
+        borderRadius: '8px',
+        border: '1px solid #d1d5da',
+        fontSize: '15px',
+        boxSizing: 'border-box',
+        backgroundColor: '#fff',
+        marginBottom: '16px',
+        transition: 'all 0.2s ease',
+        outline: 'none'
     };
 
     return (
-        <div style={{ display: 'flex', height: '100vh', width: '100vw', fontFamily: '"Segoe UI", Roboto, sans-serif' }}>
+        <div style={{ display: 'flex', height: '100vh', width: '100vw', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
             
-            {/* LEFT SIDE: Daily Dynamic Background */}
+            {/* CSS HACK: Force Chrome Autofill to be White */}
+            <style>
+                {`
+                    input:-webkit-autofill,
+                    input:-webkit-autofill:hover, 
+                    input:-webkit-autofill:focus, 
+                    input:-webkit-autofill:active{
+                        -webkit-box-shadow: 0 0 0 30px white inset !important;
+                    }
+                `}
+            </style>
+
+            {/* LEFT SIDE */}
             <div style={{
                 flex: '1.2',
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url(${bgImage})`,
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(${bgImage})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                padding: '60px',
+                padding: '80px',
                 color: 'white'
             }}>
-                {/* 1. HOT LOGO: Clicks back to home */}
                 <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block', width: 'fit-content' }}>
-                    <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '20px', cursor: 'pointer' }}>YouTool</h1>
+                    <h1 style={{ fontSize: '4rem', fontWeight: '800', marginBottom: '20px', letterSpacing: '-1.5px', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>YouTool</h1>
                 </a>
-                <p style={{ fontSize: '1.2rem', maxWidth: '500px', lineHeight: '1.6' }}>
-                    Managing your business shouldn't be hard. Log in to access your ultimate workspace.
+                <p style={{ fontSize: '1.5rem', maxWidth: '550px', lineHeight: '1.5', fontWeight: '500', textShadow: '0 2px 8px rgba(0,0,0,0.3)', opacity: 0.95 }}>
+                    Managing your business shouldn't be hard. <br/>Log in to access your ultimate workspace.
                 </p>
             </div>
 
-            {/* RIGHT SIDE: Clean Login Form */}
+            {/* RIGHT SIDE */}
             <div style={{
                 flex: '0.8',
                 backgroundColor: '#ffffff',
@@ -94,85 +114,124 @@ const Login = ({ onLoginSuccess }) => {
                 padding: '40px',
                 overflowY: 'auto'
             }}>
-                <div style={{ width: '100%', maxWidth: '380px' }}>
-                    <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}>Sign In</h2>
-                    <p style={{ color: '#777', marginBottom: '30px' }}>Welcome back! Please enter your details.</p>
+                <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+                    
+                    {/* LOGO HEADER */}
+                    <div style={{ marginBottom: '40px' }}>
+                        <h2 style={{ fontSize: '2.8rem', fontWeight: '900', color: '#0366d6', margin: 0, letterSpacing: '-2px' }}>YouTool</h2>
+                    </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '25px' }}>
-                        <button type="button" style={ssoButtonStyle}>
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{width: '18px', marginRight: '10px'}} />
+                    {/* SSO BUTTONS */}
+                    <div style={{ marginBottom: '30px' }}>
+                        <button type="button" 
+                            style={ssoButtonStyle(isGoogleHover)}
+                            onMouseEnter={() => setIsGoogleHover(true)} onMouseLeave={() => setIsGoogleHover(false)}
+                        >
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{width: '20px', marginRight: '12px'}} />
                             Continue with Google
                         </button>
-                        <button type="button" style={ssoButtonStyle}>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" style={{width: '18px', marginRight: '10px'}} />
+                        <button type="button" 
+                            style={ssoButtonStyle(isMicrosoftHover)}
+                            onMouseEnter={() => setIsMicrosoftHover(true)} onMouseLeave={() => setIsMicrosoftHover(false)}
+                        >
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" style={{width: '20px', marginRight: '12px'}} />
                             Continue with Microsoft
                         </button>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', color: '#eee' }}>
-                        <hr style={{ flex: 1, border: '0.5px solid #eee' }} />
-                        <span style={{ padding: '0 10px', fontSize: '12px', color: '#999', fontWeight: 'bold' }}>OR</span>
-                        <hr style={{ flex: 1, border: '0.5px solid #eee' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', color: '#e1e4e8' }}>
+                        <hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} />
+                        <span style={{ padding: '0 16px', fontSize: '13px', color: '#6a737d', fontWeight: '600' }}>OR</span>
+                        <hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} />
                     </div>
 
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#555' }}>Work Email</label>
-                            <input 
-                                type="email" 
-                                value={email} 
-                                onChange={(e) => setEmail(e.target.value)} 
-                                placeholder="name@company.com"
-                                style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '16px', boxSizing: 'border-box' }} 
-                                required
-                            />
-                        </div>
+                    <form onSubmit={handleSubmit}>
+                        <input 
+                            type="email" 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
+                            placeholder="Enter your email" 
+                            style={inputStyle}
+                            required
+                        />
+                        
+                        <input 
+                            type="password" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            placeholder="Password"
+                            style={inputStyle}
+                            required
+                        />
 
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#555' }}>Password</label>
-                            <input 
-                                type="password" 
-                                value={password} 
-                                onChange={(e) => setPassword(e.target.value)} 
-                                placeholder="••••••••"
-                                style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '16px', boxSizing: 'border-box' }} 
-                                required
-                            />
-                        </div>
-
-                        {/* 2. PASSWORD RESET LINK */}
-                        <div style={{ textAlign: 'right' }}>
-                            <a href="/forgot-password" style={{ color: '#007bff', fontSize: '14px', textDecoration: 'none', fontWeight: '500' }}>Forgot password?</a>
-                        </div>
-
-                        <button type="submit" style={{ 
-                            width: '100%', 
-                            padding: '14px', 
-                            backgroundColor: '#007bff', 
-                            color: 'white', 
-                            border: 'none', 
-                            borderRadius: '6px', 
-                            cursor: 'pointer', 
-                            fontSize: '16px', 
-                            fontWeight: 'bold',
-                            marginTop: '10px'
-                        }}>
+                        <button type="submit" 
+                            style={{ 
+                                width: '100%', 
+                                padding: '16px', 
+                                backgroundColor: isSignInHover ? '#005cc5' : '#0366d6', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '8px', 
+                                cursor: 'pointer', 
+                                fontSize: '16px', 
+                                fontWeight: '700',
+                                marginTop: '10px',
+                                transition: 'all 0.2s',
+                                boxShadow: isSignInHover ? '0 6px 16px rgba(3,102,214,0.3)' : '0 4px 12px rgba(3,102,214,0.15)',
+                                transform: isSignInHover ? 'translateY(-1px)' : 'translateY(0)'
+                            }}
+                            onMouseEnter={() => setIsSignInHover(true)} onMouseLeave={() => setIsSignInHover(false)}
+                        >
                             Sign In
                         </button>
 
-                        {/* 3. SIGN UP BUTTON */}
-                        <button type="button" style={secondaryButtonStyle} onClick={() => window.location.href='/register'}>
-                            Create Free Account
-                        </button>
-
-                        {/* 4. REQUEST DEMO BUTTON */}
-                        <button type="button" style={{ ...secondaryButtonStyle, border: 'none', color: '#666', fontSize: '14px', marginTop: '0' }} onClick={() => window.location.href='/demo'}>
-                            Questions? Request a Demo
-                        </button>
+                        {/* HELPER LINKS */}
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center',
+                            marginTop: '24px', 
+                            fontSize: '15px', 
+                            gap: '15px' 
+                        }}>
+                            <a href="/login-assistance" style={{ color: '#444', textDecoration: 'none', fontWeight: '500', transition: 'color 0.2s' }} 
+                               onMouseOver={(e) => e.target.style.color = '#0366d6'} 
+                               onMouseOut={(e) => e.target.style.color = '#444'}>
+                               Login Assistance
+                            </a>
+                            <span style={{ color: '#ccc' }}>|</span>
+                            <a href="/demo" style={{ color: '#0366d6', textDecoration: 'none', fontWeight: '500' }}
+                               onMouseOver={(e) => e.target.style.textDecoration = 'underline'} 
+                               onMouseOut={(e) => e.target.style.textDecoration = 'none'}>
+                               Request a demo
+                            </a>
+                        </div>
                     </form>
 
+                    {/* SIGN UP BUTTON - BOLDER & BETTER */}
+                    <div style={{ marginTop: '50px' }}>
+                         <button type="button" 
+                            style={{
+                                width: '100%',
+                                padding: '14px',
+                                backgroundColor: isSignUpHover ? '#f1f8ff' : 'transparent',
+                                color: '#0366d6',
+                                border: '2px solid #0366d6', // Thicker border
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '16px',
+                                fontWeight: '700', // Bolder text
+                                transition: 'all 0.2s'
+                            }}
+                            onClick={() => window.location.href='/register'}
+                            onMouseEnter={() => setIsSignUpHover(true)} onMouseLeave={() => setIsSignUpHover(false)}
+                        >
+                            Sign Up
+                        </button>
+                    </div>
+
                     {message && (
-                        <p style={{ marginTop: '20px', padding: '10px', borderRadius: '4px', textAlign: 'center', backgroundColor: message.includes('✅') ? '#e6fffa' : '#fff5f5', color: message.includes('✅') ? '#2c7a7b' : '#c53030', border: '1px solid currentColor', fontSize: '14px' }}>
+                        <p style={{ marginTop: '20px', padding: '12px', borderRadius: '8px', textAlign: 'center', backgroundColor: message.includes('✅') ? '#f0fff4' : '#ffebe9', color: message.includes('✅') ? '#22863a' : '#d73a49', border: `1px solid ${message.includes('✅') ? '#22863a' : '#d73a49'}`, fontSize: '14px' }}>
                             {message}
                         </p>
                     )}

@@ -14,6 +14,7 @@ import SolutionsPage from './pages/SolutionsPage';
 import PricingPage from './pages/PricingPage';
 import ContactPage from './pages/ContactPage';
 import FeaturesPage from './pages/FeaturesPage';
+import Register from './Register';
 
 // COMPONENTS
 import CreateModal from './components/CreateModal';
@@ -60,6 +61,7 @@ const App = () => {
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/features" element={<FeaturesPage />} />
                 <Route path="/contact" element={<ContactPage />} />
+<Route path="/register" element={<Register />} />
             </Route>
 
             {/* AUTH */}
