@@ -1,23 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../prismaClient');
-const authenticateToken = require('../middleware/auth');
+const { verifyToken } = require('../middleware/authMiddleware');
 
-router.get('/', authenticateToken, async (req, res) => {
+// 1. GET ALL ORGANIZATIONS
+router.get('/', verifyToken, async (req, res) => { 
     try {
         const orgs = await prisma.organization.findMany({
             where: { companyId: req.user.companyId },
             include: { 
-                _count: { select: { contacts: true } }, // Preserved original inclusion
+                _count: { select: { contacts: true } }, 
                 links: true 
             },
-            orderBy: { name: 'asc' } // Preserved original sort order
+            orderBy: { name: 'asc' } 
         });
         res.json(orgs);
     } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
-router.post('/', authenticateToken, async (req, res) => {
+// 2. CREATE ORGANIZATION
+router.post('/', verifyToken, async (req, res) => {
     const { name, industry, website, links } = req.body;
     try {
         const result = await prisma.$transaction(async (tx) => {
@@ -35,7 +37,8 @@ router.post('/', authenticateToken, async (req, res) => {
     } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
-router.put('/:id', authenticateToken, async (req, res) => {
+// 3. UPDATE ORGANIZATION
+router.put('/:id', verifyToken, async (req, res) => {
     try {
         const updated = await prisma.organization.update({
             where: { id: parseInt(req.params.id), companyId: req.user.companyId },

@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../prismaClient'); 
-const authenticateToken = require('../middleware/auth');
+// 1. IMPORT THE CORRECT MIDDLEWARE NAME
+const { verifyToken } = require('../middleware/authMiddleware');
 
-// 1. CREATE CONTACT (POST) - Fully Restored with Transaction
-router.post('/', authenticateToken, async (req, res) => {
+// 2. CREATE CONTACT (POST) - Preserved your Transaction Logic
+router.post('/', verifyToken, async (req, res) => {
     const { 
         firstName, lastName, email, organizationId, jobTitle, 
         department, phone, mobile, address, city, state, zip, description, links 
@@ -14,7 +15,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
     try {
         const result = await prisma.$transaction(async (tx) => {
-            // A. Create the Contact with ALL fields preserved
+            // A. Create the Contact
             const contact = await tx.contact.create({
                 data: {
                     firstName: firstName.trim(),
@@ -37,7 +38,7 @@ router.post('/', authenticateToken, async (req, res) => {
                 }
             });
 
-            // B. Handle the dynamic Links array (Related section)
+            // B. Handle the dynamic Links
             if (links && links.length > 0) {
                 const linkPromises = links.map(link => {
                     return tx.contactLink.create({
@@ -62,8 +63,8 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
-// 2. GET ALL CONTACTS (GET) - Preserved Filtering
-router.get('/', authenticateToken, async (req, res) => {
+// 3. GET ALL CONTACTS (GET) - THE FIX IS HERE
+router.get('/', verifyToken, async (req, res) => { 
     const { search } = req.query;
     try {
         const contacts = await prisma.contact.findMany({
@@ -87,8 +88,8 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-// 3. UPDATE CONTACT (PUT) - Preserved Original Logic
-router.put('/:id', authenticateToken, async (req, res) => {
+// 4. UPDATE CONTACT (PUT)
+router.put('/:id', verifyToken, async (req, res) => {
     try {
         const { organizationId, ...rest } = req.body;
         const updated = await prisma.contact.update({
@@ -104,8 +105,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// 4. DELETE CONTACT (DELETE) - Preserved Original Logic
-router.delete('/:id', authenticateToken, async (req, res) => {
+// 5. DELETE CONTACT (DELETE)
+router.delete('/:id', verifyToken, async (req, res) => {
     try {
         await prisma.contact.delete({
             where: { id: parseInt(req.params.id), companyId: req.user.companyId }

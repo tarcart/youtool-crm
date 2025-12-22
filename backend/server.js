@@ -46,7 +46,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000; // <--- Changed to 5000 to match Frontend
 
 // 6. ROBUST STARTUP
 async function startServer() {

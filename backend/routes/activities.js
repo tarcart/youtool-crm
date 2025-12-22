@@ -1,11 +1,11 @@
-// backend/routes/activities.js
 const express = require('express');
 const router = express.Router();
 const prisma = require('../prismaClient');
-const authenticateToken = require('../middleware/auth');
+// FIX: Import from the correct new file
+const { verifyToken } = require('../middleware/authMiddleware');
 
 // 1. GET activities for a specific contact
-router.get('/contact/:id', authenticateToken, async (req, res) => {
+router.get('/contact/:id', verifyToken, async (req, res) => {
     try {
         const activities = await prisma.activity.findMany({
             where: { contactId: parseInt(req.params.id) },
@@ -16,7 +16,7 @@ router.get('/contact/:id', authenticateToken, async (req, res) => {
 });
 
 // 2. POST a new activity (Log a call/note)
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
     const { contactId, type, description } = req.body;
     try {
         const newActivity = await prisma.activity.create({
@@ -24,7 +24,7 @@ router.post('/', authenticateToken, async (req, res) => {
                 type,
                 description,
                 contactId: parseInt(contactId),
-                userId: req.user.id // Taken from the JWT token
+                userId: req.user.id
             }
         });
         res.status(201).json(newActivity);

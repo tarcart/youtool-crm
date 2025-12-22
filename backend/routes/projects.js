@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../prismaClient');
-const authenticateToken = require('../middleware/auth');
+const { verifyToken } = require('../middleware/authMiddleware');
 
-router.get('/', authenticateToken, async (req, res) => {
+// 1. GET PROJECTS
+router.get('/', verifyToken, async (req, res) => {
     try {
         const projects = await prisma.project.findMany({
             where: { companyId: req.user.companyId },
@@ -16,7 +17,8 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/', authenticateToken, async (req, res) => {
+// 2. CREATE PROJECT
+router.post('/', verifyToken, async (req, res) => {
     const { name, startDate, endDate, status, description, links } = req.body;
     try {
         const result = await prisma.$transaction(async (tx) => {
@@ -25,8 +27,8 @@ router.post('/', authenticateToken, async (req, res) => {
                     name,
                     startDate: startDate ? new Date(startDate) : null,
                     endDate: endDate ? new Date(endDate) : null,
-                    status: status || 'In Progress', // Preserved original default
-                    description: description || null, // Preserved original field
+                    status: status || 'In Progress',
+                    description: description || null,
                     companyId: req.user.companyId
                 }
             });

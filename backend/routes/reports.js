@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-// CHANGE THIS: Import your custom client
 const prisma = require('../prismaClient');
-const authenticateToken = require('../middleware/auth');
+// FIX: Import from the correct new file
+const { verifyToken } = require('../middleware/authMiddleware');
 
 // GET: Dashboard Summary Stats
-router.get('/dashboard-summary', authenticateToken, async (req, res) => {
+router.get('/dashboard-summary', verifyToken, async (req, res) => {
     try {
         const companyId = req.user.companyId;
 
@@ -30,8 +30,8 @@ router.get('/dashboard-summary', authenticateToken, async (req, res) => {
         });
 
         const winRate = totalClosedCount > 0 
-            ? ((wonCount / totalClosedCount) * 100).toFixed(2) 
-            : "0.00";
+            ? ((wonCount / totalClosedCount) * 100).toFixed(1) 
+            : "0.0";
 
         // 3. Pipeline Funnel (Count by Stage)
         const funnelData = await prisma.opportunity.groupBy({
@@ -45,7 +45,7 @@ router.get('/dashboard-summary', authenticateToken, async (req, res) => {
             totalSales: salesData._sum.value || 0,
             winRate: `${winRate}%`,
             pipelineFunnel: funnelData,
-            topSalesReps: [] // Placeholder for future Rep-tracking logic
+            topSalesReps: [] 
         });
     } catch (err) {
         console.error("Report Error:", err);

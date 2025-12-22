@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../prismaClient'); 
-const authenticateToken = require('../middleware/auth');
+const { verifyToken } = require('../middleware/authMiddleware');
 
-router.get('/', authenticateToken, async (req, res) => {
+// 1. GET TASKS
+router.get('/', verifyToken, async (req, res) => {
     try {
         const tasks = await prisma.task.findMany({
             where: { companyId: req.user.companyId },
@@ -16,7 +17,8 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/', authenticateToken, async (req, res) => {
+// 2. CREATE TASK
+router.post('/', verifyToken, async (req, res) => {
     const { subject, dueDate, description, priority, links } = req.body;
     try {
         const result = await prisma.$transaction(async (tx) => {
@@ -24,9 +26,9 @@ router.post('/', authenticateToken, async (req, res) => {
                 data: {
                     subject,
                     dueDate: dueDate ? new Date(dueDate) : null,
-                    priority: priority || 'Normal', // Preserved original default
-                    description: description || null, // Preserved original field
-                    status: 'Open', // Preserved original default
+                    priority: priority || 'Normal',
+                    description: description || null,
+                    status: 'Open',
                     companyId: req.user.companyId
                 }
             });
