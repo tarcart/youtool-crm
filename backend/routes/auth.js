@@ -93,7 +93,7 @@ router.post('/forgot-password', async (req, res) => {
 
         // 3. Send Email
         // CHANGE THIS URL IF DEPLOYING TO PRODUCTION (e.g. https://youtool.com/reset-password/)
-        const resetLink = `http://localhost:5173/reset-password/${resetToken}`; 
+        const resetLink = `https://youtool.com/reset-password/${resetToken}`; 
 
         const mailOptions = {
             from: `"YouTool Support" <${process.env.EMAIL_USER}>`,
