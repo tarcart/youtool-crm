@@ -14,8 +14,8 @@ const ForgotPassword = () => {
     setMessage('');
 
     try {
-      // Use the full URL if you aren't using a proxy, or just /api/... if you are
-      const response = await fetch('http://localhost:5001/api/auth/forgot-password', {
+      // FIX: Changed to relative path. This works on localhost AND youtool.com automatically.
+      const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
