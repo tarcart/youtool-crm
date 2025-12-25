@@ -15,7 +15,9 @@ import PricingPage from './pages/PricingPage';
 import ContactPage from './pages/ContactPage';
 import FeaturesPage from './pages/FeaturesPage';
 import Register from './Register';
-import VerifyEmail from './pages/VerifyEmail'; 
+import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword'; 
 
 // COMPONENTS
 import CreateModal from './components/CreateModal';
@@ -64,6 +66,8 @@ const App = () => {
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
+<Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password/:token" element={<ResetPassword />} />
             </Route>
 
             {/* AUTH (LOGIN ONLY) */}
