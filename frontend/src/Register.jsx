@@ -9,7 +9,7 @@ const Register = () => {
         password: '',
         confirmPassword: ''
     });
-    const [showPassword, setShowPassword] = useState(false); // REPAIR: Discreet state for toggle
+    const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
     const [bgImage, setBgImage] = useState('');
@@ -60,14 +60,12 @@ const Register = () => {
             });
 
         } catch (error) {
-            console.error("Registration Error:", error);
             setIsSuccess(false);
             const errorMsg = error.response?.data?.error || 'Registration failed.';
             setMessage(`❌ ${errorMsg}`);
         }
     };
 
-    // STYLES
     const inputStyle = {
         width: '100%',
         padding: '14px',
@@ -93,12 +91,7 @@ const Register = () => {
         }}>
             <style>
                 {`
-                    input:-webkit-autofill,
-                    input:-webkit-autofill:hover, 
-                    input:-webkit-autofill:focus, 
-                    input:-webkit-autofill:active{
-                        -webkit-box-shadow: 0 0 0 30px #f8f9fa inset !important;
-                    }
+                    input:-webkit-autofill { -webkit-box-shadow: 0 0 0 30px #f8f9fa inset !important; }
                 `}
             </style>
 
@@ -108,17 +101,15 @@ const Register = () => {
                 <div style={{ flex: '1 1 500px', color: 'white' }}>
                     <div style={{ marginBottom: '30px' }}>
                         <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block' }}>
-                            <h1 style={{ fontSize: '3.5rem', fontWeight: '900', margin: 0, letterSpacing: '-1.5px', cursor: 'pointer' }}>YouTool</h1>
+                            <h1 style={{ fontSize: '3.5rem', fontWeight: '900', margin: 0, letterSpacing: '-1.5px' }}>YouTool</h1>
                         </a>
                     </div>
                     <h2 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '20px', lineHeight: '1.1' }}>Manage Everything.<br/><span style={{ color: orangeBase }}>Achieve More.</span></h2>
-                    <p style={{ fontSize: '1.4rem', opacity: 0.95, maxWidth: '500px', lineHeight: '1.6', marginBottom: '45px', fontWeight: '300', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>The all-in-one workspace for those who demand success. Join today and elevate your business.</p>
                 </div>
 
-                <div style={{ flex: '0 0 440px', backgroundColor: '#ffffff', borderRadius: '16px', padding: '45px', boxShadow: '0 40px 60px -12px rgba(0, 0, 0, 0.7)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ flex: '0 0 440px', backgroundColor: '#ffffff', borderRadius: '16px', padding: '45px', boxShadow: '0 40px 60px -12px rgba(0, 0, 0, 0.7)' }}>
                     <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                        <h3 style={{ fontSize: '2rem', fontWeight: '800', color: '#1a202c', margin: 0, letterSpacing: '-0.5px' }}>Get Started</h3>
-                        <p style={{ color: '#718096', marginTop: '8px', fontSize: '15px', fontStyle: 'italic' }}>And never stop.</p>
+                        <h3 style={{ fontSize: '2rem', fontWeight: '800', color: '#1a202c', margin: 0 }}>Get Started</h3>
                     </div>
 
                     <form onSubmit={handleSubmit}>
@@ -126,8 +117,8 @@ const Register = () => {
                         <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="Company Name" style={inputStyle} required />
                         <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Enter your email" style={inputStyle} required />
                         
-                        {/* REPAIR: Professional Toggle Container */}
-                        <div style={{ position: 'relative' }}>
+                        {/* REPAIR: DISCREET TOGGLE (Modern AOL-Style) */}
+                        <div style={{ position: 'relative', width: '100%', marginBottom: '14px' }}>
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <input 
                                     type={showPassword ? "text" : "password"} 
@@ -135,7 +126,7 @@ const Register = () => {
                                     value={formData.password} 
                                     onChange={handleChange} 
                                     placeholder="Password" 
-                                    style={{ ...inputStyle, paddingRight: '55px' }} 
+                                    style={{ ...inputStyle, marginBottom: 0, paddingRight: '15px' }} 
                                     required 
                                 />
                                 <input 
@@ -144,7 +135,7 @@ const Register = () => {
                                     value={formData.confirmPassword} 
                                     onChange={handleChange} 
                                     placeholder="Confirm" 
-                                    style={inputStyle} 
+                                    style={{ ...inputStyle, marginBottom: 0, paddingRight: '45px' }} 
                                     required 
                                 />
                             </div>
@@ -153,32 +144,31 @@ const Register = () => {
                                 onClick={() => setShowPassword(!showPassword)}
                                 style={{
                                     position: 'absolute',
-                                    right: '115px', // Adjusted to sit inside the first password field
-                                    top: '14px',
+                                    right: '12px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
                                     background: 'none',
                                     border: 'none',
                                     cursor: 'pointer',
-                                    fontSize: '12px',
-                                    fontWeight: '700',
-                                    color: orangeBase,
-                                    textTransform: 'uppercase',
-                                    zIndex: 5
+                                    fontSize: '18px',
+                                    color: '#718096',
+                                    zIndex: 10,
+                                    padding: '5px'
                                 }}
                             >
-                                {showPassword ? 'Hide' : 'Show'}
+                                {showPassword ? '👁️' : '⊙'} 
                             </button>
                         </div>
 
                         {message && (
-                            <div style={{ padding: '12px', marginBottom: '15px', borderRadius: '6px', backgroundColor: isSuccess ? '#f0fff4' : '#fff5f5', color: isSuccess ? '#2f855a' : '#c53030', border: `1px solid ${isSuccess ? '#9ae6b4' : '#feb2b2'}`, fontSize: '14px', textAlign: 'center', fontWeight: '500' }}>
+                            <div style={{ padding: '12px', marginBottom: '15px', borderRadius: '6px', backgroundColor: isSuccess ? '#f0fff4' : '#fff5f5', color: isSuccess ? '#2f855a' : '#c53030', border: `1px solid ${isSuccess ? '#9ae6b4' : '#feb2b2'}`, fontSize: '14px', textAlign: 'center' }}>
                                 {message}
                             </div>
                         )}
 
                         <button type="submit" 
                             style={{ 
-                                width: '100%', padding: '16px', backgroundColor: isSubmitHover ? orangeHover : orangeBase, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: '700', marginTop: '10px', transition: 'all 0.2s',
-                                boxShadow: isSubmitHover ? `0 10px 20px -5px rgba(255, 87, 34, 0.5)` : `0 4px 10px -2px rgba(255, 87, 34, 0.3)`,
+                                width: '100%', padding: '16px', backgroundColor: isSubmitHover ? orangeHover : orangeBase, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: '700', transition: 'all 0.2s',
                                 transform: isSubmitHover ? 'translateY(-2px)' : 'translateY(0)'
                             }}
                             onMouseEnter={() => setIsSubmitHover(true)} onMouseLeave={() => setIsSubmitHover(false)}
@@ -187,12 +177,10 @@ const Register = () => {
                         </button>
                     </form>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #edf2f7', fontSize: '14px', gap: '15px', color: '#cbd5e0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #edf2f7', fontSize: '14px', gap: '15px' }}>
                         <a href="/login" style={{ color: orangeBase, textDecoration: 'none', fontWeight: '600' }}>Sign In</a>
                         <span>|</span>
                         <a href="/login-assistance" style={{ color: '#718096', textDecoration: 'none' }}>Login Assistance</a>
-                        <span>|</span>
-                        <a href="/demo" style={{ color: '#718096', textDecoration: 'none' }}>Request a demo</a>
                     </div>
                 </div>
             </div>
