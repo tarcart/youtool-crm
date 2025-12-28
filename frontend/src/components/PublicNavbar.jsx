@@ -77,7 +77,7 @@ const PublicNavbar = () => {
                     <Link to="/contact" className="nav-item">Contact</Link>
                 </div>
                 <div className="auth-buttons">
-                    <Link to="/login" className="btn-login">Sign In</Link>
+                    <Link to="/signin" className="btn-login">Sign In</Link>
                     <Link to="/register" className="btn-register">Try YouTool for Free</Link>
                 </div>
             </nav>
