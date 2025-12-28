@@ -49,6 +49,7 @@ const App = () => {
     };
 
     const ProtectedRoute = ({ children }) => {
+        // FIXED: Redirects to /signin
         if (!user) return <Navigate to="/signin" />;
         return children;
     };
@@ -70,7 +71,7 @@ const App = () => {
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Route>
 
-            {/* AUTH (Fixed URL to /signin) */}
+            {/* AUTH (CHANGED TO SIGNIN) */}
             <Route path="/signin" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
 
             {/* DASHBOARD */}
@@ -94,11 +95,13 @@ const App = () => {
                     ) : <Navigate to="/dashboard" />}
                 </ProtectedRoute>
             } />
+            
+            {/* CATCH ALL - Redirect old /login to /signin */}
+            <Route path="/login" element={<Navigate to="/signin" replace />} />
         </Routes>
     );
 };
 
-// --- CRM LAYOUT (THIS IS THE PART THAT WAS ACCIDENTALLY DELETED) ---
 const MainAppLayout = ({ user, onLogout }) => {
     const [activeTab, setActiveTab] = useState('home');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
