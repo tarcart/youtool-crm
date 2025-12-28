@@ -66,11 +66,12 @@ const App = () => {
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
-<Route path="/forgot-password" element={<ForgotPassword />} />
-<Route path="/reset-password/:token" element={<ResetPassword />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Route>
 
             {/* AUTH (LOGIN ONLY) */}
+            {/* KEEP path="/login" so we don't break links in other files */}
             <Route path="/login" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
 
             {/* DASHBOARD */}
@@ -188,7 +189,8 @@ const MainAppLayout = ({ user, onLogout }) => {
                 <div style={{ padding: '15px', borderTop: '1px solid #eee' }}>
                     <button onClick={onLogout} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: sidebarExpanded ? 'flex-start' : 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}>
                         <span style={{ fontSize: '18px' }}>🚪</span>
-                        {sidebarExpanded && <span style={{ marginLeft: '12px', fontSize: '13px', fontWeight: 'bold' }}>Logout</span>}
+                        {/* UPDATE: Changed "Logout" to "Sign Out" to match your theme */}
+                        {sidebarExpanded && <span style={{ marginLeft: '12px', fontSize: '13px', fontWeight: 'bold' }}>Sign Out</span>}
                     </button>
                 </div>
             </div>

@@ -32,7 +32,9 @@ const Login = ({ onLoginSuccess }) => {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
 
-            setMessage(`✅ Success! Welcome back, ${response.data.user.name.split(' ')[0]}.`);
+            // SAFE SYNTAX: Using concatenation instead of backticks to prevent build errors
+            const userName = response.data.user.name.split(' ')[0];
+            setMessage('✅ Success! Welcome back, ' + userName + '.');
             
             setTimeout(() => {
                 if (onLoginSuccess) onLoginSuccess(response.data.user);
@@ -40,7 +42,8 @@ const Login = ({ onLoginSuccess }) => {
             }, 1000);
 
         } catch (error) {
-            setMessage('⚠️ Login failed. Check your credentials.');
+            // TEXT UPDATE: Changed "Login" to "Sign in"
+            setMessage('⚠️ Sign in failed. Check your credentials.');
         }
     };
 
@@ -106,8 +109,9 @@ const Login = ({ onLoginSuccess }) => {
                 <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block', width: 'fit-content' }}>
                     <h1 style={{ fontSize: '4rem', fontWeight: '800', marginBottom: '20px', letterSpacing: '-1.5px', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>YouTool</h1>
                 </a>
+                {/* TEXT UPDATE: Changed "Log in" to "Sign in" */}
                 <p style={{ fontSize: '1.5rem', maxWidth: '550px', lineHeight: '1.5', fontWeight: '500', textShadow: '0 2px 8px rgba(0,0,0,0.3)', opacity: 0.95 }}>
-                    Managing your business shouldn't be hard. <br/>Log in to access your ultimate workspace.
+                    Managing your business shouldn't be hard. <br/>Sign in to access your ultimate workspace.
                 </p>
             </div>
 
@@ -121,12 +125,8 @@ const Login = ({ onLoginSuccess }) => {
                 alignItems: 'center',
                 padding: '40px',
                 overflowY: 'auto',
-                // Extra padding at bottom allows scrolling if the error box hangs low on small screens
                 paddingBottom: '120px' 
             }}>
-                {/* CONTENT CONTAINER 
-                    position: relative -> This is the ANCHOR. The error box will hang off the bottom of this div.
-                */}
                 <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center', position: 'relative' }}>
                     
                     {/* LOGO HEADER */}
@@ -221,35 +221,28 @@ const Login = ({ onLoginSuccess }) => {
                         </div>
                     </form>
 
-                    {/* ERROR MESSAGE (THE SPRUCED UP VERSION) 
-                        It is absolute positioned relative to the FORM container above.
-                        This keeps it locked to the bottom of the links, but prevents "jumping".
-                    */}
+                    {/* MESSAGE BOX */}
                     {message && (
                         <div style={{ 
                             position: 'absolute',
-                            top: '100%', // Pushes it exactly below the links
+                            top: '100%',
                             left: 0,
                             width: '100%',
-                            marginTop: '25px', // Little bit of breathing room
+                            marginTop: '25px', 
                             padding: '16px', 
                             paddingRight: '35px', 
-                            borderRadius: '6px', // Sleek corners
+                            borderRadius: '6px',
                             textAlign: 'center', 
-                            
-                            // MODERN STYLE
                             backgroundColor: '#ffffff',
                             border: '1px solid #edf2f7',
-                            borderLeft: `5px solid ${message.includes('✅') ? '#22863a' : '#d73a49'}`, // Accent Bar
-                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', // Nice shadow
-                            
+                            borderLeft: `5px solid ${message.includes('✅') ? '#22863a' : '#d73a49'}`,
+                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
                             color: '#2d3748',
                             fontSize: '14px',
                             animation: 'slideUp 0.3s ease-out',
                             zIndex: 10
                         }}>
                             
-                            {/* ANIMATION KEYFRAMES */}
                             <style>{`
                                 @keyframes slideUp {
                                     from { opacity: 0; transform: translateY(10px); }
@@ -257,7 +250,6 @@ const Login = ({ onLoginSuccess }) => {
                                 }
                             `}</style>
 
-                            {/* CLOSE BUTTON */}
                             <span 
                                 onClick={() => setMessage('')} 
                                 style={{
@@ -278,7 +270,6 @@ const Login = ({ onLoginSuccess }) => {
                             </span>
 
                             <div style={{ fontWeight: '600', marginBottom: message.includes('✅') ? '0' : '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                {/* Icon is part of the text now for better alignment */}
                                 <span>{message}</span>
                             </div>
 
