@@ -23,7 +23,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // ==========================================
-// 2. LOGIN ROUTE
+// 2. LOGIN ROUTE (Fixed: Includes Role)
 // ==========================================
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -34,8 +34,15 @@ router.post('/login', async (req, res) => {
         const match = await bcrypt.compare(password, user.passwordHash);
         if (!match) return res.status(401).json({ error: 'Invalid password' });
 
-        const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+        // *** FIX: ADD ROLE TO TOKEN ***
+        const token = jwt.sign(
+            { userId: user.id, email: user.email, role: user.role }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1h' }
+        );
+
+        // *** FIX: SEND ROLE TO FRONTEND ***
+        res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
         console.error("Login Error:", err);
         res.status(500).json({ error: 'Login failed' });
@@ -80,6 +87,33 @@ router.post('/forgot-password', async (req, res) => {
     } catch (error) {
         console.error('Forgot Password Error:', error);
         res.status(500).json({ error: 'Could not send email. Please try again later.' });
+    }
+});
+
+// ==========================================
+// 4. RESET PASSWORD ROUTE (The Missing Link)
+// ==========================================
+router.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body; // Receive token & new password
+
+    try {
+        // 1. Verify the token is valid and not expired
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // 2. Encrypt the new password
+        const hash = await bcrypt.hash(newPassword, saltRounds);
+
+        // 3. Save it to the database
+        await prisma.user.update({
+            where: { id: decoded.userId },
+            data: { passwordHash: hash }
+        });
+
+        res.json({ message: 'Password updated successfully!' });
+
+    } catch (err) {
+        console.error("Reset Error:", err);
+        res.status(400).json({ error: 'Invalid or expired token' });
     }
 });
 
