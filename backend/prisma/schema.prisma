@@ -34,18 +34,21 @@ model User {
   passwordHash String     @db.VarChar(255)
   
   name         String     @db.VarChar(255) 
-
   role         String     @db.VarChar(50)
   
-  // CHANGED: Default is now false (Locked until verified)
+  // Existing fields preserved
   isActive     Boolean    @default(false)
+  emailToken   String?    // Used for initial setup/verify
   
-  // NEW: Stores the random code sent to email
-  emailToken   String?    
+  // --- NEW: Password Reset Fields ---
+  resetToken        String?   @unique
+  resetTokenExpires DateTime?
+  // ----------------------------------
 
   companyId    Int
   company      Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   activities   Activity[]
+  
   @@map("users")
 }
 
