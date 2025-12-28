@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react'; // Added useState
 import { useNavigate, useLocation } from 'react-router-dom';
-import Login from '../Login'; // Importing your existing Login component
+import Login from '../Login'; 
 
 const AuthPage = ({ onLoginSuccess }) => {
     const navigate = useNavigate();
@@ -13,10 +13,10 @@ const AuthPage = ({ onLoginSuccess }) => {
         <Login 
             onLoginSuccess={(user) => {
                 onLoginSuccess(user);
-                navigate('/dashboard'); // Redirect to dashboard after success
+                navigate('/dashboard'); 
             }}
             initialMode={isRegisterMode ? 'register' : 'login'}
-            onBack={() => navigate('/')} // Back button goes to Home
+            onBack={() => navigate('/')} 
         />
     );
 };
