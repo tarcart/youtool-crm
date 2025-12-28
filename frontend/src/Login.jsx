@@ -4,6 +4,7 @@ import axios from 'axios';
 const Login = ({ onLoginSuccess }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // REPAIR: Added state for toggle
     const [message, setMessage] = useState('');
     const [bgImage, setBgImage] = useState('');
 
@@ -25,14 +26,13 @@ const Login = ({ onLoginSuccess }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage(''); // Clear previous messages
+        setMessage('');
         try {
             const response = await axios.post('/api/auth/login', { email, password });
             
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
 
-            // SAFE SYNTAX: Using concatenation instead of backticks to prevent build errors
             const userName = response.data.user.name.split(' ')[0];
             setMessage('✅ Success! Welcome back, ' + userName + '.');
             
@@ -42,7 +42,6 @@ const Login = ({ onLoginSuccess }) => {
             }, 1000);
 
         } catch (error) {
-            // TEXT UPDATE: Changed "Login" to "Sign in"
             setMessage('⚠️ Sign in failed. Check your credentials.');
         }
     };
@@ -82,7 +81,6 @@ const Login = ({ onLoginSuccess }) => {
     return (
         <div style={{ display: 'flex', height: '100vh', width: '100vw', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
             
-            {/* CSS HACK: Force Chrome Autofill to be White */}
             <style>
                 {`
                     input:-webkit-autofill,
@@ -109,7 +107,6 @@ const Login = ({ onLoginSuccess }) => {
                 <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block', width: 'fit-content' }}>
                     <h1 style={{ fontSize: '4rem', fontWeight: '800', marginBottom: '20px', letterSpacing: '-1.5px', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>YouTool</h1>
                 </a>
-                {/* TEXT UPDATE: Changed "Log in" to "Sign in" */}
                 <p style={{ fontSize: '1.5rem', maxWidth: '550px', lineHeight: '1.5', fontWeight: '500', textShadow: '0 2px 8px rgba(0,0,0,0.3)', opacity: 0.95 }}>
                     Managing your business shouldn't be hard. <br/>Sign in to access your ultimate workspace.
                 </p>
@@ -168,14 +165,32 @@ const Login = ({ onLoginSuccess }) => {
                             required
                         />
                         
-                        <input 
-                            type="password" 
-                            value={password} 
-                            onChange={(e) => setPassword(e.target.value)} 
-                            placeholder="Password"
-                            style={inputStyle}
-                            required
-                        />
+                        {/* REPAIR: Wrapped password input for toggle */}
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            <input 
+                                type={showPassword ? "text" : "password"} 
+                                value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                placeholder="Password"
+                                style={inputStyle}
+                                required
+                            />
+                            <button 
+                                type="button" 
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '12px',
+                                    top: '14px',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: '18px'
+                                }}
+                            >
+                                {showPassword ? '👁️' : '🙈'}
+                            </button>
+                        </div>
 
                         <button type="submit" 
                             style={{ 
