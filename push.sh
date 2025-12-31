@@ -1,3 +1,5 @@
+# Optimized for Windows PowerShell
 git add .
-git commit -m "Automated push: $(date)"
+$currentDate = Get-Date -Format "yyyy-MM-dd HH:mm"
+git commit -m "Social Auth Update: $currentDate"
 git push origin main
