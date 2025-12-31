@@ -3,7 +3,13 @@ const jwt = require('jsonwebtoken');
 
 // Helper to generate JWT Token
 const generateToken = (user) => {
-    return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
+    // 🚀 FIXED: Now includes role and companyId so the Admin Middleware permits access
+    return jwt.sign({ 
+        id: user.id, 
+        email: user.email,
+        role: user.role,           // <--- Critical for Admin Access
+        companyId: user.companyId  // <--- Required for data filtering
+    }, process.env.JWT_SECRET, {
         expiresIn: '7d',
     });
 };
@@ -26,7 +32,7 @@ exports.socialCallback = (provider) => {
                 return res.redirect(`${process.env.FRONTEND_URL}/signin?error=auth_failed`);
             }
 
-            // Generate Token
+            // Generate Token (Now with SUPER_ADMIN powers included)
             const token = generateToken(user);
             
             // Redirect to frontend with token in URL (frontend will save it to localStorage)
