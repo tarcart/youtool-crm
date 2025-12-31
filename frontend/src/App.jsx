@@ -18,6 +18,7 @@ import Register from './Register';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword'; 
+import AppleLaunch from './AppleLaunch'; //
 
 // COMPONENTS
 import CreateModal from './components/CreateModal';
@@ -67,10 +68,11 @@ const App = () => {
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
-                <Route path="/apple-launch" element={<AppleLaunch />} />
             </Route>
 
+            {/* FULL SCREEN PAGES */}
             <Route path="/signin" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+            <Route path="/apple-launch" element={<AppleLaunch />} /> {/* */}
 
             <Route path="/dashboard/*" element={
                 <ProtectedRoute>
@@ -239,4 +241,4 @@ const MainAppLayout = ({ user, onLogout }) => {
     );
 };
 
-export default App; // CRITICAL: Restored this missing line
+export default App;
