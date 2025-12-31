@@ -29,7 +29,7 @@ const App = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // 🔒 SESSION HYDRATION
+    // 🔒 SESSION HYDRATION - Loads user on page load/refresh
     useEffect(() => {
         const token = localStorage.getItem('token');
         const savedUser = localStorage.getItem('user');
@@ -46,10 +46,16 @@ const App = () => {
         setLoading(false);
     }, []);
 
+    // 🚀 FIXED: Single declaration of handleLoginSuccess
     const handleLoginSuccess = (userData) => {
+        // 1. Update state immediately so ProtectedRoute lets you in
         setUser(userData);
-        // Data is already saved to localStorage by AuthPage.jsx
-        navigate('/dashboard');
+        
+        // 2. Ensure data is persisted for future refreshes
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // 3. Navigate to dashboard
+        navigate('/dashboard', { replace: true });
     };
 
     const handleLogout = () => {
@@ -61,7 +67,6 @@ const App = () => {
 
     const ProtectedRoute = ({ children }) => {
         if (loading) return <div>Loading...</div>;
-        // If no user is in state, redirect to signin
         if (!user) return <Navigate to="/signin" replace />;
         return children;
     };
@@ -85,7 +90,6 @@ const App = () => {
             <Route path="/signin" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
             <Route path="/apple-launch" element={<AppleLaunch />} />
 
-            {/* DASHBOARD ROUTE */}
             <Route path="/dashboard/*" element={
                 <ProtectedRoute>
                     <MainAppLayout user={user} onLogout={handleLogout} />
@@ -111,7 +115,6 @@ const App = () => {
     );
 };
 
-// ... Rest of your MainAppLayout remains the same
 const MainAppLayout = ({ user, onLogout }) => {
     const [activeTab, setActiveTab] = useState('home');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
@@ -178,6 +181,7 @@ const MainAppLayout = ({ user, onLogout }) => {
         if (user?.role === 'SUPER_ADMIN') items.push({ id: 'admin', label: 'Super Admin', icon: '👑' });
         return items;
     };
+
     const handleTabClick = (tabId) => {
         if (tabId === 'admin') navigate('/admin');
         else { setActiveTab(tabId); setSelectedItem(null); setSelectedIds([]); }
