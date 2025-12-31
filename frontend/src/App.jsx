@@ -46,17 +46,18 @@ const App = () => {
         setLoading(false);
     }, []);
 
-    // 🚀 FIXED: Single declaration of handleLoginSuccess
+    // 🚀 THE FIX: Force a hard browser reload instead of a soft state update
     const handleLoginSuccess = (userData) => {
-        // 1. Force state update IMMEDIATELY so the gatekeeper sees the user
-        setUser(userData);
-        
-        // 2. Ensure data is saved for future refreshes
+        // 1. Save data to localStorage (Critical)
         localStorage.setItem('user', JSON.stringify(userData));
+        // Ensure token is preserved if it wasn't already
+        const token = localStorage.getItem('token');
+        if (token) localStorage.setItem('token', token);
 
-        // 3. Move to dashboard — since user state is now set, 
-        // the ProtectedRoute will let you in instantly.
-        navigate('/dashboard', { replace: true });
+        // 2. FORCE BROWSER RELOAD
+        // This bypasses React's state delay and forces the App to restart
+        // with the user logged in. 100% reliability for the "Refresh" bug.
+        window.location.href = '/dashboard';
     };
 
     const handleLogout = () => {
