@@ -24,18 +24,21 @@ const findOrCreateUser = async (profile, done) => {
         let user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
+            // Updated to use 'passwordHash' as defined in your schema
             user = await prisma.user.create({
                 data: {
                     email: email,
                     name: profile.displayName || `${profile.name.givenName} ${profile.name.familyName}`,
-                    password: '', // Social users don't need a local password
+                    passwordHash: null, // Social users don't have a local password
                     role: 'USER',
-                    isVerified: true // Social accounts are pre-verified by the provider
+                    isActive: true, 
+                    // companyId is now optional in schema, so we can leave it null initially
                 },
             });
         }
         return done(null, user);
     } catch (err) {
+        console.error("Prisma Error during social login:", err);
         return done(err, null);
     }
 };
