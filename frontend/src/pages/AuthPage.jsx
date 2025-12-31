@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'; 
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Login from '../Login'; 
 
 const AuthPage = ({ onLoginSuccess }) => {
@@ -7,25 +7,28 @@ const AuthPage = ({ onLoginSuccess }) => {
     const [searchParams] = useSearchParams();
 
     useEffect(() => {
-        // 1. Get the data from the URL
+        // 1. Grab the token and user data from the URL
         const token = searchParams.get('token');
         const userDataStr = searchParams.get('user');
 
         if (token && userDataStr) {
+            console.log("🔗 Social handshake detected in URL...");
             try {
-                // 2. Parse and Save
+                // 2. Parse the data
                 const userData = JSON.parse(decodeURIComponent(userDataStr));
+
+                // 3. Save to localStorage so the session sticks
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(userData));
 
-                // 3. Trigger the success state
+                // 4. Update the app's logged-in state
                 onLoginSuccess(userData);
 
-                // 4. Clean the URL and redirect to dashboard
-                // This removes the #_=_ and the long token from the address bar
+                // 5. Hard redirect to dashboard and clear the URL
+                // We use replace: true to prevent the 'back' button from returning here
                 navigate('/dashboard', { replace: true });
             } catch (err) {
-                console.error("Social login parsing failed:", err);
+                console.error("❌ Handshake error:", err);
             }
         }
     }, [searchParams, navigate, onLoginSuccess]);
