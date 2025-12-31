@@ -18,7 +18,7 @@ import Register from './Register';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword'; 
-import AppleLaunch from './AppleLaunch'; //
+import AppleLaunch from './AppleLaunch';
 
 // COMPONENTS
 import CreateModal from './components/CreateModal';
@@ -29,16 +29,26 @@ const App = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
+    // 🔒 SESSION HYDRATION
     useEffect(() => {
         const token = localStorage.getItem('token');
         const savedUser = localStorage.getItem('user');
-        if (token && savedUser) setUser(JSON.parse(savedUser));
+        
+        if (token && savedUser) {
+            try {
+                setUser(JSON.parse(savedUser));
+            } catch (err) {
+                console.error("Failed to parse saved user:", err);
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
+            }
+        }
         setLoading(false);
     }, []);
 
     const handleLoginSuccess = (userData) => {
         setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
+        // Data is already saved to localStorage by AuthPage.jsx
         navigate('/dashboard');
     };
 
@@ -50,11 +60,13 @@ const App = () => {
     };
 
     const ProtectedRoute = ({ children }) => {
-        if (!user) return <Navigate to="/signin" />;
+        if (loading) return <div>Loading...</div>;
+        // If no user is in state, redirect to signin
+        if (!user) return <Navigate to="/signin" replace />;
         return children;
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div>Loading session...</div>;
 
     return (
         <Routes>
@@ -70,10 +82,10 @@ const App = () => {
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Route>
 
-            {/* FULL SCREEN PAGES */}
             <Route path="/signin" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
-            <Route path="/apple-launch" element={<AppleLaunch />} /> {/* */}
+            <Route path="/apple-launch" element={<AppleLaunch />} />
 
+            {/* DASHBOARD ROUTE */}
             <Route path="/dashboard/*" element={
                 <ProtectedRoute>
                     <MainAppLayout user={user} onLogout={handleLogout} />
@@ -99,6 +111,7 @@ const App = () => {
     );
 };
 
+// ... Rest of your MainAppLayout remains the same
 const MainAppLayout = ({ user, onLogout }) => {
     const [activeTab, setActiveTab] = useState('home');
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
