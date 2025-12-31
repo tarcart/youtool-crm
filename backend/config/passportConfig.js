@@ -40,26 +40,26 @@ const findOrCreateUser = async (profile, done) => {
     }
 };
 
-// 1. Google Strategy
+// 1. Google Strategy - Updated with Absolute URL
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/api/auth/google/callback"
+    callbackURL: "https://youtool.com/api/auth/google/callback"
 }, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
 
-// 2. Facebook Strategy
+// 2. Facebook Strategy - Updated with Absolute URL
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "/api/auth/facebook/callback",
+    callbackURL: "https://youtool.com/api/auth/facebook/callback",
     profileFields: ['id', 'displayName', 'emails', 'name']
 }, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
 
-// 3. Microsoft Strategy (Covers O365, Live ID, and Outlook)
+// 3. Microsoft Strategy - Updated with Absolute URL
 passport.use(new MicrosoftStrategy({
     clientID: process.env.MICROSOFT_CLIENT_ID,
     clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
-    callbackURL: "/api/auth/microsoft/callback",
+    callbackURL: "https://youtool.com/api/auth/microsoft/callback",
     scope: ['user.read']
 }, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
 
