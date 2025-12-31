@@ -5,7 +5,7 @@ import Login from '../Login';
 const AuthPage = ({ onLoginSuccess }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [searchParams] = useSearchParams(); // Hook to read ?token=...
+    const [searchParams] = useSearchParams();
     
     const isRegisterMode = location.pathname === '/register';
 
@@ -15,21 +15,24 @@ const AuthPage = ({ onLoginSuccess }) => {
         const userDataStr = searchParams.get('user');
 
         if (token && userDataStr) {
+            console.log("✅ Social login detected. Finalizing handshake...");
             try {
                 // 1. Decode and parse the user data
                 const userData = JSON.parse(decodeURIComponent(userDataStr));
 
-                // 2. Save to localStorage to persist the session
+                // 2. Save credentials to localStorage to persist the session
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(userData));
 
-                // 3. Update the app state
-                onLoginSuccess(userData);
+                // 3. Trigger the app-wide login success state
+                if (typeof onLoginSuccess === 'function') {
+                    onLoginSuccess(userData);
+                }
 
-                // 4. Send the user to the dashboard
+                // 4. Send the user to their dashboard
                 navigate('/dashboard');
             } catch (err) {
-                console.error("Social login parsing failed:", err);
+                console.error("❌ Social login parsing failed:", err);
             }
         }
     }, [searchParams, navigate, onLoginSuccess]);
