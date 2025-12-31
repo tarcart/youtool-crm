@@ -6,24 +6,27 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const prisma = new PrismaClient();
 
+// 🚀 CRITICAL IMPORT: This connects to the Social Logic we built earlier
+const authController = require('../controllers/authController'); 
+
 // Define Salt Rounds for Password Hashing
 const saltRounds = 10;
 
 // ==========================================
-// 1. EMAIL TRANSPORTER SETUP (Brevo Port 2525)
+// 1. EMAIL TRANSPORTER SETUP (Brevo)
 // ==========================================
 const transporter = nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
     port: 2525,
     secure: false, 
     auth: {
-        user: process.env.EMAIL_USER, // This will use the "Robot" login from .env
-        pass: process.env.EMAIL_PASS  // This will use the long API Key from .env
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS 
     }
 });
 
 // ==========================================
-// 2. LOGIN ROUTE (Fixed: Includes Role)
+// 2. LOCAL LOGIN ROUTE (Email/Password)
 // ==========================================
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -34,14 +37,13 @@ router.post('/login', async (req, res) => {
         const match = await bcrypt.compare(password, user.passwordHash);
         if (!match) return res.status(401).json({ error: 'Invalid password' });
 
-        // *** FIX: ADD ROLE TO TOKEN ***
+        // Generate Token with Role
         const token = jwt.sign(
-            { userId: user.id, email: user.email, role: user.role }, 
+            { id: user.id, email: user.email, role: user.role, companyId: user.companyId }, 
             process.env.JWT_SECRET, 
-            { expiresIn: '1h' }
+            { expiresIn: '7d' }
         );
 
-        // *** FIX: SEND ROLE TO FRONTEND ***
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
         console.error("Login Error:", err);
@@ -50,71 +52,61 @@ router.post('/login', async (req, res) => {
 });
 
 // ==========================================
-// 3. FORGOT PASSWORD ROUTE
+// 3. FORGOT & RESET PASSWORD ROUTES
 // ==========================================
 router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
-
     try {
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) {
-            return res.status(404).json({ error: 'Email not found' });
-        }
+        if (!user) return res.status(404).json({ error: 'Email not found' });
 
-        // Generate a temporary reset token (valid for 1 hour)
         const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        
-        // Create the reset link
         const resetLink = `https://youtool.com/reset-password/${resetToken}`;
 
-        // Configure the Email
-        const mailOptions = {
-            from: '"YouTool Support" <garland@shieldsind.com>', // Shows your real email to the customer
+        await transporter.sendMail({
+            from: '"YouTool Support" <garland@shieldsind.com>',
             to: email,
             subject: 'Password Reset Request',
-            html: `
-                <h3>Password Reset</h3>
-                <p>You requested a password reset. Click the link below to set a new password:</p>
-                <a href="${resetLink}" style="padding: 10px 20px; background-color: #d35400; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
-                <p>If you did not request this, please ignore this email.</p>
-            `
-        };
+            html: `<h3>Password Reset</h3><p>Click here: <a href="${resetLink}">Reset Password</a></p>`
+        });
 
-        // Send the Email
-        await transporter.sendMail(mailOptions);
-        res.json({ message: 'Check your email! We sent you a password reset link.' });
-
+        res.json({ message: 'Check your email!' });
     } catch (error) {
-        console.error('Forgot Password Error:', error);
-        res.status(500).json({ error: 'Could not send email. Please try again later.' });
+        res.status(500).json({ error: 'Could not send email.' });
     }
 });
 
-// ==========================================
-// 4. RESET PASSWORD ROUTE (The Missing Link)
-// ==========================================
 router.post('/reset-password', async (req, res) => {
-    const { token, newPassword } = req.body; // Receive token & new password
-
+    const { token, newPassword } = req.body;
     try {
-        // 1. Verify the token is valid and not expired
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // 2. Encrypt the new password
         const hash = await bcrypt.hash(newPassword, saltRounds);
 
-        // 3. Save it to the database
         await prisma.user.update({
             where: { id: decoded.userId },
             data: { passwordHash: hash }
         });
-
         res.json({ message: 'Password updated successfully!' });
-
     } catch (err) {
-        console.error("Reset Error:", err);
         res.status(400).json({ error: 'Invalid or expired token' });
     }
 });
+
+// ==========================================
+// 4. SOCIAL LOGIN ROUTES (Google, Facebook, Microsoft)
+// ==========================================
+// These are the lines that were missing!
+
+// Google
+router.get('/google', authController.socialLogin('google'));
+router.get('/google/callback', authController.socialCallback('google'));
+
+// Facebook
+router.get('/facebook', authController.socialLogin('facebook'));
+router.get('/facebook/callback', authController.socialCallback('facebook'));
+
+// Microsoft / Office 365 / Live ID
+router.get('/microsoft', authController.socialLogin('microsoft'));
+router.get('/microsoft/callback', authController.socialCallback('microsoft'));
 
 module.exports = router;
