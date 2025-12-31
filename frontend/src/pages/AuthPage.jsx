@@ -4,35 +4,28 @@ import Login from '../Login';
 
 const AuthPage = ({ onLoginSuccess }) => {
     const navigate = useNavigate();
-    const location = useLocation();
     const [searchParams] = useSearchParams();
-    
-    const isRegisterMode = location.pathname === '/register';
 
-    // 🔗 INTERCEPTOR FOR SOCIAL LOGIN
     useEffect(() => {
+        // 1. Get the data from the URL
         const token = searchParams.get('token');
         const userDataStr = searchParams.get('user');
 
         if (token && userDataStr) {
-            console.log("✅ Social login detected. Finalizing handshake...");
             try {
-                // 1. Decode and parse the user data
+                // 2. Parse and Save
                 const userData = JSON.parse(decodeURIComponent(userDataStr));
-
-                // 2. Save credentials to localStorage to persist the session
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(userData));
 
-                // 3. Trigger the app-wide login success state
-                if (typeof onLoginSuccess === 'function') {
-                    onLoginSuccess(userData);
-                }
+                // 3. Trigger the success state
+                onLoginSuccess(userData);
 
-                // 4. Send the user to their dashboard
-                navigate('/dashboard');
+                // 4. Clean the URL and redirect to dashboard
+                // This removes the #_=_ and the long token from the address bar
+                navigate('/dashboard', { replace: true });
             } catch (err) {
-                console.error("❌ Social login parsing failed:", err);
+                console.error("Social login parsing failed:", err);
             }
         }
     }, [searchParams, navigate, onLoginSuccess]);
@@ -43,7 +36,7 @@ const AuthPage = ({ onLoginSuccess }) => {
                 onLoginSuccess(user);
                 navigate('/dashboard'); 
             }}
-            initialMode={isRegisterMode ? 'register' : 'login'}
+            initialMode={window.location.pathname === '/register' ? 'register' : 'login'}
             onBack={() => navigate('/')} 
         />
     );
