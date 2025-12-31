@@ -7,28 +7,30 @@ const AuthPage = ({ onLoginSuccess }) => {
     const [searchParams] = useSearchParams();
 
     useEffect(() => {
-        // 1. Grab the token and user data from the URL
-        const token = searchParams.get('token');
-        const userDataStr = searchParams.get('user');
+        // 1. Triple-check: Get token from Router OR direct from the browser window
+        const token = searchParams.get('token') || new URLSearchParams(window.location.search).get('token');
+        const userDataStr = searchParams.get('user') || new URLSearchParams(window.location.search).get('user');
 
         if (token && userDataStr) {
-            console.log("🔗 Social handshake detected in URL...");
+            console.log("🛠️ SOCIAL HANDSHAKE DETECTED"); 
             try {
-                // 2. Parse the data
-                const userData = JSON.parse(decodeURIComponent(userDataStr));
+                // 2. Clear that annoying Facebook hash fragment immediately
+                if (window.location.hash === '#_=_') {
+                    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                }
 
-                // 3. Save to localStorage so the session sticks
+                // 3. Save to localStorage
+                const userData = JSON.parse(decodeURIComponent(userDataStr));
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(userData));
 
-                // 4. Update the app's logged-in state
+                // 4. Log in and Move to Dashboard
                 onLoginSuccess(userData);
-
-                // 5. Hard redirect to dashboard and clear the URL
-                // We use replace: true to prevent the 'back' button from returning here
-                navigate('/dashboard', { replace: true });
+                
+                // Use a short delay to ensure state is set before navigating
+                setTimeout(() => navigate('/dashboard', { replace: true }), 100);
             } catch (err) {
-                console.error("❌ Handshake error:", err);
+                console.error("❌ Handshake Error:", err);
             }
         }
     }, [searchParams, navigate, onLoginSuccess]);
