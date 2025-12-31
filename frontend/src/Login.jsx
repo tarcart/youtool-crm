@@ -23,6 +23,11 @@ const Login = ({ onLoginSuccess }) => {
     }, []);
 
     const handleSocialLogin = (provider) => {
+        if (provider === 'apple') {
+            // Redirect to the "Coming Soon" page instead of the backend
+            window.location.href = '/apple-launch';
+            return;
+        }
         window.location.href = `/api/auth/${provider}`;
     };
 

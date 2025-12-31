@@ -67,6 +67,7 @@ const App = () => {
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
+                <Route path="/apple-launch" element={<AppleLaunch />} />
             </Route>
 
             <Route path="/signin" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
