@@ -22,14 +22,20 @@ const Login = ({ onLoginSuccess }) => {
         setBgImage(images[dayOfYear % images.length]);
     }, []);
 
-    const handleSocialLogin = (provider) => {
-        if (provider === 'apple') {
-            // Redirect to the "Coming Soon" page instead of the backend
-            window.location.href = '/apple-launch';
-            return;
-        }
-        window.location.href = `/api/auth/${provider}`;
-    };
+    // Inside Login.jsx
+const handleSocialLogin = (provider) => {
+    if (provider === 'apple') {
+        window.location.href = '/apple-launch';
+        return;
+    }
+    
+    // Redirect Office 365 and Live ID to the unified 'microsoft' route
+    const backendProvider = (provider === 'office365' || provider === 'liveid') 
+        ? 'microsoft' 
+        : provider;
+
+    window.location.href = `/api/auth/${backendProvider}`;
+};
 
     const handleSubmit = async (e) => {
         e.preventDefault();

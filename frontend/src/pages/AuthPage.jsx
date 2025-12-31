@@ -1,34 +1,32 @@
-import React, { useState, useEffect } from 'react'; // Added useEffect
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'; // Added useSearchParams
+import React, { useEffect } from 'react'; 
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Login from '../Login'; 
 
 const AuthPage = ({ onLoginSuccess }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [searchParams] = useSearchParams(); // Hook to read URL parameters
+    const [searchParams] = useSearchParams(); // Hook to read ?token=...
     
-    // Check if the URL is '/register'
     const isRegisterMode = location.pathname === '/register';
 
-    // 🔗 SOCIAL LOGIN HANDSHAKE
-    // This effect runs on mount to check if we just returned from Google/FB/MS
+    // 🔗 INTERCEPTOR FOR SOCIAL LOGIN
     useEffect(() => {
         const token = searchParams.get('token');
         const userDataStr = searchParams.get('user');
 
         if (token && userDataStr) {
             try {
-                // 1. Decode and parse the user data from the URL
+                // 1. Decode and parse the user data
                 const userData = JSON.parse(decodeURIComponent(userDataStr));
 
-                // 2. Save credentials to localStorage so the session persists
+                // 2. Save to localStorage to persist the session
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(userData));
 
-                // 3. Trigger the app-wide login success state
+                // 3. Update the app state
                 onLoginSuccess(userData);
 
-                // 4. Send the user to their dashboard
+                // 4. Send the user to the dashboard
                 navigate('/dashboard');
             } catch (err) {
                 console.error("Social login parsing failed:", err);
