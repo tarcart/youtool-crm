@@ -4,13 +4,11 @@ import axios from 'axios';
 const Login = ({ onLoginSuccess }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // REPAIR: Added state for toggle
+    const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState('');
     const [bgImage, setBgImage] = useState('');
 
-    // HOVER STATES
-    const [isGoogleHover, setIsGoogleHover] = useState(false);
-    const [isMicrosoftHover, setIsMicrosoftHover] = useState(false);
+    const [hoveredBtn, setHoveredBtn] = useState(null);
     const [isSignInHover, setIsSignInHover] = useState(false);
 
     useEffect(() => {
@@ -24,45 +22,43 @@ const Login = ({ onLoginSuccess }) => {
         setBgImage(images[dayOfYear % images.length]);
     }, []);
 
+    const handleSocialLogin = (provider) => {
+        window.location.href = `/api/auth/${provider}`;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage('');
         try {
             const response = await axios.post('/api/auth/login', { email, password });
-            
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
-
             const userName = response.data.user.name.split(' ')[0];
             setMessage('✅ Success! Welcome back, ' + userName + '.');
-            
             setTimeout(() => {
                 if (onLoginSuccess) onLoginSuccess(response.data.user);
                 window.location.href = '/dashboard';
             }, 1000);
-
         } catch (error) {
             setMessage('⚠️ Sign in failed. Check your credentials.');
         }
     };
 
-    // STYLES
-    const ssoButtonStyle = (isHover) => ({
+    const ssoButtonStyle = (id) => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '12px',
+        padding: '10px',
         borderRadius: '8px',
         border: '1px solid #e1e4e8',
-        backgroundColor: isHover ? '#f8f9fa' : '#ffffff',
+        backgroundColor: hoveredBtn === id ? '#f8f9fa' : '#ffffff',
         cursor: 'pointer',
-        fontSize: '15px',
+        fontSize: '13px',
         fontWeight: '500',
         width: '100%',
         transition: 'all 0.2s ease',
-        marginBottom: '12px',
         color: '#24292e',
-        boxShadow: isHover ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
+        boxShadow: hoveredBtn === id ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
     });
 
     const inputStyle = {
@@ -80,229 +76,60 @@ const Login = ({ onLoginSuccess }) => {
 
     return (
         <div style={{ display: 'flex', height: '100vh', width: '100vw', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-            
             <style>
-                {`
-                    input:-webkit-autofill,
-                    input:-webkit-autofill:hover, 
-                    input:-webkit-autofill:focus, 
-                    input:-webkit-autofill:active{
-                        -webkit-box-shadow: 0 0 0 30px white inset !important;
-                    }
-                `}
+                {`input:-webkit-autofill { -webkit-box-shadow: 0 0 0 30px white inset !important; }`}
             </style>
-
-            {/* LEFT SIDE */}
-            <div style={{
-                flex: '1.2',
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(${bgImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                padding: '80px',
-                color: 'white'
-            }}>
-                <a href="/" style={{ textDecoration: 'none', color: 'white', display: 'inline-block', width: 'fit-content' }}>
+            <div style={{ flex: '1.2', backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '80px', color: 'white' }}>
+                <a href="/" style={{ textDecoration: 'none', color: 'white' }}>
                     <h1 style={{ fontSize: '4rem', fontWeight: '800', marginBottom: '20px', letterSpacing: '-1.5px', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>YouTool</h1>
                 </a>
                 <p style={{ fontSize: '1.5rem', maxWidth: '550px', lineHeight: '1.5', fontWeight: '500', textShadow: '0 2px 8px rgba(0,0,0,0.3)', opacity: 0.95 }}>
                     Managing your business shouldn't be hard. <br/>Sign in to access your ultimate workspace.
                 </p>
             </div>
-
-            {/* RIGHT SIDE */}
-            <div style={{
-                flex: '0.8',
-                backgroundColor: '#ffffff',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: '40px',
-                overflowY: 'auto',
-                paddingBottom: '120px' 
-            }}>
-                <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center', position: 'relative' }}>
-                    
-                    {/* LOGO HEADER */}
-                    <div style={{ marginBottom: '40px' }}>
-                        <h2 style={{ fontSize: '2.8rem', fontWeight: '900', color: '#0366d6', margin: 0, letterSpacing: '-2px' }}>YouTool</h2>
-                    </div>
-
-                    {/* SSO BUTTONS */}
-                    <div style={{ marginBottom: '30px' }}>
-                        <button type="button" 
-                            style={ssoButtonStyle(isGoogleHover)}
-                            onMouseEnter={() => setIsGoogleHover(true)} onMouseLeave={() => setIsGoogleHover(false)}
-                        >
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{width: '20px', marginRight: '12px'}} />
-                            Continue with Google
+            <div style={{ flex: '0.8', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px', overflowY: 'auto' }}>
+                <div style={{ width: '100%', maxWidth: '450px', textAlign: 'center' }}>
+                    <h2 style={{ fontSize: '2.8rem', fontWeight: '900', color: '#0366d6', margin: "0 0 30px 0", letterSpacing: '-2px' }}>YouTool</h2>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                        <button type="button" onClick={() => handleSocialLogin('google')} style={ssoButtonStyle('google')} onMouseEnter={() => setHoveredBtn('google')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Google
                         </button>
-                        <button type="button" 
-                            style={ssoButtonStyle(isMicrosoftHover)}
-                            onMouseEnter={() => setIsMicrosoftHover(true)} onMouseLeave={() => setIsMicrosoftHover(false)}
-                        >
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" style={{width: '20px', marginRight: '12px'}} />
-                            Continue with Microsoft
+                        <button type="button" onClick={() => handleSocialLogin('apple')} style={ssoButtonStyle('apple')} onMouseEnter={() => setHoveredBtn('apple')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Apple
+                        </button>
+                        <button type="button" onClick={() => handleSocialLogin('facebook')} style={ssoButtonStyle('fb')} onMouseEnter={() => setHoveredBtn('fb')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/en/0/04/Facebook_f_logo_%282021%29.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Facebook
+                        </button>
+                        <button type="button" onClick={() => handleSocialLogin('microsoft')} style={ssoButtonStyle('ms')} onMouseEnter={() => setHoveredBtn('ms')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Microsoft
+                        </button>
+                        <button type="button" onClick={() => handleSocialLogin('office365')} style={ssoButtonStyle('o365')} onMouseEnter={() => setHoveredBtn('o365')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Microsoft_Office_logo_%282019%E2%80%93present%29.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Office 365
+                        </button>
+                        <button type="button" onClick={() => handleSocialLogin('liveid')} style={ssoButtonStyle('live')} onMouseEnter={() => setHoveredBtn('live')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Account_Logo.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Live ID
                         </button>
                     </div>
-
                     <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', color: '#e1e4e8' }}>
-                        <hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} />
-                        <span style={{ padding: '0 16px', fontSize: '13px', color: '#6a737d', fontWeight: '600' }}>OR</span>
-                        <hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} />
+                        <hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} /><span style={{ padding: '0 16px', fontSize: '12px', color: '#6a737d', fontWeight: '600' }}>OR EMAIL</span><hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} />
                     </div>
-
                     <form onSubmit={handleSubmit}>
-                        <input 
-                            type="email" 
-                            value={email} 
-                            onChange={(e) => setEmail(e.target.value)} 
-                            placeholder="Enter your email" 
-                            style={inputStyle}
-                            required
-                        />
-                        
-                        {/* REPAIR: Wrapped password input for toggle */}
+                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={inputStyle} required />
                         <div style={{ position: 'relative', width: '100%' }}>
-                            <input 
-                                type={showPassword ? "text" : "password"} 
-                                value={password} 
-                                onChange={(e) => setPassword(e.target.value)} 
-                                placeholder="Password"
-                                style={inputStyle}
-                                required
-                            />
-                            <button 
-                                type="button" 
-                                onClick={() => setShowPassword(!showPassword)}
-                                style={{
-                                    position: 'absolute',
-                                    right: '12px',
-                                    top: '14px',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    fontSize: '18px'
-                                }}
-                            >
-                                {showPassword ? '👁️' : '🙈'}
+                            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" style={inputStyle} required />
+                            <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '14px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#718096' }}>
+                                {showPassword ? '👁️' : '⊙'} 
                             </button>
                         </div>
-
-                        <button type="submit" 
-                            style={{ 
-                                width: '100%', 
-                                padding: '16px', 
-                                backgroundColor: isSignInHover ? '#005cc5' : '#0366d6', 
-                                color: 'white', 
-                                border: 'none', 
-                                borderRadius: '8px', 
-                                cursor: 'pointer', 
-                                fontSize: '16px', 
-                                fontWeight: '700',
-                                marginTop: '10px',
-                                transition: 'all 0.2s',
-                                boxShadow: isSignInHover ? '0 6px 16px rgba(3,102,214,0.3)' : '0 4px 12px rgba(3,102,214,0.15)',
-                                transform: isSignInHover ? 'translateY(-1px)' : 'translateY(0)'
-                            }}
-                            onMouseEnter={() => setIsSignInHover(true)} onMouseLeave={() => setIsSignInHover(false)}
-                        >
-                            Sign In
-                        </button>
-
-                        {/* HELPER LINKS */}
-                        <div style={{ 
-                            display: 'flex', 
-                            justifyContent: 'center', 
-                            alignItems: 'center',
-                            marginTop: '24px', 
-                            fontSize: '15px', 
-                            gap: '15px' 
-                        }}>
-                            <a href="/forgot-password" style={{ color: '#444', textDecoration: 'none', fontWeight: '500', transition: 'color 0.2s' }} 
-                               onMouseOver={(e) => e.target.style.color = '#0366d6'} 
-                               onMouseOut={(e) => e.target.style.color = '#444'}>
-                               Forgot Password?
-                            </a>
-                            <span style={{ color: '#ccc' }}>|</span>
-                            <a href="/register" style={{ color: '#0366d6', textDecoration: 'none', fontWeight: '500' }}
-                               onMouseOver={(e) => e.target.style.textDecoration = 'underline'} 
-                               onMouseOut={(e) => e.target.style.textDecoration = 'none'}>
-                               Create an account
-                            </a>
-                        </div>
+                        <button type="submit" style={{ width: '100%', padding: '16px', backgroundColor: isSignInHover ? '#005cc5' : '#0366d6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: '700', marginTop: '10px' }} onMouseEnter={() => setIsSignInHover(true)} onMouseLeave={() => setIsSignInHover(false)}>Sign In</button>
                     </form>
-
-                    {/* MESSAGE BOX */}
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px', fontSize: '14px', gap: '15px' }}>
+                        <a href="/forgot-password" style={{ color: '#444', textDecoration: 'none' }}>Forgot Password?</a>
+                        <span style={{ color: '#ccc' }}>|</span>
+                        <a href="/register" style={{ color: '#0366d6', textDecoration: 'none', fontWeight: '600' }}>Create account</a>
+                    </div>
                     {message && (
-                        <div style={{ 
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            width: '100%',
-                            marginTop: '25px', 
-                            padding: '16px', 
-                            paddingRight: '35px', 
-                            borderRadius: '6px',
-                            textAlign: 'center', 
-                            backgroundColor: '#ffffff',
-                            border: '1px solid #edf2f7',
-                            borderLeft: `5px solid ${message.includes('✅') ? '#22863a' : '#d73a49'}`,
-                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                            color: '#2d3748',
-                            fontSize: '14px',
-                            animation: 'slideUp 0.3s ease-out',
-                            zIndex: 10
-                        }}>
-                            
-                            <style>{`
-                                @keyframes slideUp {
-                                    from { opacity: 0; transform: translateY(10px); }
-                                    to { opacity: 1; transform: translateY(0); }
-                                }
-                            `}</style>
-
-                            <span 
-                                onClick={() => setMessage('')} 
-                                style={{
-                                    position: 'absolute',
-                                    top: '8px',
-                                    right: '10px',
-                                    cursor: 'pointer',
-                                    fontSize: '18px',
-                                    fontWeight: 'bold',
-                                    lineHeight: '1',
-                                    color: '#a0aec0',
-                                    transition: 'color 0.2s'
-                                }}
-                                onMouseOver={(e) => e.target.style.color = '#4a5568'}
-                                onMouseOut={(e) => e.target.style.color = '#a0aec0'}
-                            >
-                                ✕
-                            </span>
-
-                            <div style={{ fontWeight: '600', marginBottom: message.includes('✅') ? '0' : '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <span>{message}</span>
-                            </div>
-
-                            {!message.includes('✅') && (
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'center', 
-                                    gap: '15px', 
-                                    fontSize: '13px', 
-                                    marginTop: '8px',
-                                    paddingTop: '8px',
-                                    borderTop: '1px solid #edf2f7'
-                                }}>
-                                    <a href="/forgot-password" style={{ color: '#d73a49', textDecoration: 'none', fontWeight: '600' }} onMouseOver={(e) => e.target.style.textDecoration='underline'} onMouseOut={(e) => e.target.style.textDecoration='none'}>Reset Password</a>
-                                    <a href="/support" style={{ color: '#718096', textDecoration: 'none', fontWeight: '600' }} onMouseOver={(e) => e.target.style.textDecoration='underline'} onMouseOut={(e) => e.target.style.textDecoration='none'}>Contact Support</a>
-                                </div>
-                            )}
-                        </div>
+                        <div style={{ marginTop: '25px', padding: '16px', borderRadius: '6px', backgroundColor: '#ffffff', border: '1px solid #edf2f7', borderLeft: `5px solid ${message.includes('✅') ? '#22863a' : '#d73a49'}`, color: '#2d3748', fontSize: '14px' }}>{message}</div>
                     )}
                 </div>
             </div>
