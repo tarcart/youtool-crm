@@ -48,13 +48,14 @@ const App = () => {
 
     // 🚀 FIXED: Single declaration of handleLoginSuccess
     const handleLoginSuccess = (userData) => {
-        // 1. Update state immediately so ProtectedRoute lets you in
+        // 1. Force state update IMMEDIATELY so the gatekeeper sees the user
         setUser(userData);
         
-        // 2. Ensure data is persisted for future refreshes
+        // 2. Ensure data is saved for future refreshes
         localStorage.setItem('user', JSON.stringify(userData));
 
-        // 3. Navigate to dashboard
+        // 3. Move to dashboard — since user state is now set, 
+        // the ProtectedRoute will let you in instantly.
         navigate('/dashboard', { replace: true });
     };
 
