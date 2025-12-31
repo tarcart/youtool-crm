@@ -10,7 +10,12 @@ const generateToken = (user) => {
 
 // Initiate Social Login (Redirects to Google/FB/MS)
 exports.socialLogin = (provider) => {
-    return passport.authenticate(provider, { scope: ['profile', 'email'] });
+    // Facebook requires 'public_profile' instead of 'profile'
+    const scope = provider === 'facebook' 
+        ? ['public_profile', 'email'] 
+        : ['profile', 'email'];
+
+    return passport.authenticate(provider, { scope });
 };
 
 // Handle Provider Callback
