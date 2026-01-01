@@ -77,8 +77,9 @@ passport.use(new LinkedInStrategy({
     clientID: process.env.LINKEDIN_CLIENT_ID,
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
     callbackURL: "https://youtool.com/api/auth/linkedin/callback",
-    scope: ['r_emailaddress', 'r_liteprofile'],
-    state: false  // <--- 🚀 CRITICAL FIX: Disable session-based state check
+    // 🚀 FIXED: Use modern OpenID scopes instead of legacy ones
+    scope: ['openid', 'profile', 'email'],
+    state: false
 }, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
 
 module.exports = passport;

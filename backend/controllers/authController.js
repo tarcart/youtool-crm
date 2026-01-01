@@ -23,8 +23,8 @@ exports.socialLogin = (provider) => {
     } else if (provider === 'microsoft') {
         scope = ['openid', 'profile', 'email', 'user.read'];
     } else if (provider === 'linkedin') {
-        // 🚀 NEW: LinkedIn permissions
-        scope = ['r_emailaddress', 'r_liteprofile'];
+        // 🚀 FIXED: Update to match the new OpenID standard
+        scope = ['openid', 'profile', 'email'];
     } else {
         // Default (Google)
         scope = ['profile', 'email'];
