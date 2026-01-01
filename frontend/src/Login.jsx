@@ -22,20 +22,20 @@ const Login = ({ onLoginSuccess }) => {
         setBgImage(images[dayOfYear % images.length]);
     }, []);
 
-    // Inside Login.jsx
-const handleSocialLogin = (provider) => {
-    if (provider === 'apple') {
-        window.location.href = '/apple-launch';
-        return;
-    }
-    
-    // Redirect Office 365 and Live ID to the unified 'microsoft' route
-    const backendProvider = (provider === 'office365' || provider === 'liveid') 
-        ? 'microsoft' 
-        : provider;
+    const handleSocialLogin = (provider) => {
+        if (provider === 'apple') {
+            window.location.href = '/apple-launch';
+            return;
+        }
+        
+        // Redirect Office 365 and Live ID to the unified 'microsoft' route
+        const backendProvider = (provider === 'office365' || provider === 'liveid') 
+            ? 'microsoft' 
+            : provider;
 
-    window.location.href = `/api/auth/${backendProvider}`;
-};
+        // Note: The new buttons (tiktok, instagram, etc.) will 404 until we update the backend!
+        window.location.href = `/api/auth/${backendProvider}`;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -51,7 +51,7 @@ const handleSocialLogin = (provider) => {
                 window.location.href = '/dashboard';
             }, 1000);
         } catch (error) {
-            setMessage('⚠️ Sign in failed. Check your credentials.');
+            setMessage(⚠️ Sign in failed. Check your credentials.');
         }
     };
 
@@ -101,26 +101,53 @@ const handleSocialLogin = (provider) => {
             <div style={{ flex: '0.8', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px', overflowY: 'auto' }}>
                 <div style={{ width: '100%', maxWidth: '450px', textAlign: 'center' }}>
                     <h2 style={{ fontSize: '2.8rem', fontWeight: '900', color: '#0366d6', margin: "0 0 30px 0", letterSpacing: '-2px' }}>YouTool</h2>
+                    
+                    {/* 🚀 NEW 10-BUTTON GRID */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
-                        <button type="button" onClick={() => handleSocialLogin('google')} style={ssoButtonStyle('google')} onMouseEnter={() => setHoveredBtn('google')} onMouseLeave={() => setHoveredBtn(null)}>
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Google
-                        </button>
-                        <button type="button" onClick={() => handleSocialLogin('apple')} style={ssoButtonStyle('apple')} onMouseEnter={() => setHoveredBtn('apple')} onMouseLeave={() => setHoveredBtn(null)}>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Apple
-                        </button>
+                        
+                        {/* ROW 1: Facebook | Instagram */}
                         <button type="button" onClick={() => handleSocialLogin('facebook')} style={ssoButtonStyle('fb')} onMouseEnter={() => setHoveredBtn('fb')} onMouseLeave={() => setHoveredBtn(null)}>
                             <img src="https://upload.wikimedia.org/wikipedia/en/0/04/Facebook_f_logo_%282021%29.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Facebook
+                        </button>
+                        <button type="button" onClick={() => handleSocialLogin('instagram')} style={ssoButtonStyle('insta')} onMouseEnter={() => setHoveredBtn('insta')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Instagram
+                        </button>
+
+                        {/* ROW 2: X (Twitter) | Apple */}
+                        <button type="button" onClick={() => handleSocialLogin('twitter')} style={ssoButtonStyle('twitter')} onMouseEnter={() => setHoveredBtn('twitter')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg" alt="" style={{width: '14px', marginRight: '8px'}} /> X
+                        </button>
+                        <button type="button" onClick={() => handleSocialLogin('apple')} style={ssoButtonStyle('apple')} onMouseEnter={() => setHoveredBtn('apple')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="" style={{width: '14px', marginRight: '8px'}} /> Apple
+                        </button>
+
+                        {/* ROW 3: TikTok | LinkedIn */}
+                        <button type="button" onClick={() => handleSocialLogin('tiktok')} style={ssoButtonStyle('tiktok')} onMouseEnter={() => setHoveredBtn('tiktok')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> TikTok
+                        </button>
+                        <button type="button" onClick={() => handleSocialLogin('linkedin')} style={ssoButtonStyle('linkedin')} onMouseEnter={() => setHoveredBtn('linkedin')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> LinkedIn
+                        </button>
+
+                        {/* ROW 4: Google | Microsoft */}
+                        <button type="button" onClick={() => handleSocialLogin('google')} style={ssoButtonStyle('google')} onMouseEnter={() => setHoveredBtn('google')} onMouseLeave={() => setHoveredBtn(null)}>
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Google
                         </button>
                         <button type="button" onClick={() => handleSocialLogin('microsoft')} style={ssoButtonStyle('ms')} onMouseEnter={() => setHoveredBtn('ms')} onMouseLeave={() => setHoveredBtn(null)}>
                             <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Microsoft
                         </button>
+
+                        {/* ROW 5: Office 365 | Live ID */}
                         <button type="button" onClick={() => handleSocialLogin('office365')} style={ssoButtonStyle('o365')} onMouseEnter={() => setHoveredBtn('o365')} onMouseLeave={() => setHoveredBtn(null)}>
                             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Microsoft_Office_logo_%282019%E2%80%93present%29.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Office 365
                         </button>
                         <button type="button" onClick={() => handleSocialLogin('liveid')} style={ssoButtonStyle('live')} onMouseEnter={() => setHoveredBtn('live')} onMouseLeave={() => setHoveredBtn(null)}>
                             <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Account_Logo.svg" alt="" style={{width: '16px', marginRight: '8px'}} /> Live ID
                         </button>
+
                     </div>
+                    {/* END GRID */}
+
                     <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', color: '#e1e4e8' }}>
                         <hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} /><span style={{ padding: '0 16px', fontSize: '12px', color: '#6a737d', fontWeight: '600' }}>OR EMAIL</span><hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} />
                     </div>
