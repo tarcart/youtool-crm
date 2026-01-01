@@ -1,42 +1,107 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-// Helper: Generate JWT
+// Helper to generate JWT Token
 const generateToken = (user) => {
     return jwt.sign({ 
-        id: user.id, email: user.email, role: user.role, companyId: user.companyId
-    }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        id: user.id, 
+        email: user.email,
+        role: user.role,
+        companyId: user.companyId
+    }, process.env.JWT_SECRET, {
+        expiresIn: '7d',
+    });
 };
 
-// 1. Social Login Start
-exports.socialLogin = (provider) => {
-    let scope;
-    if (provider === 'facebook') scope = ['public_profile', 'email'];
-    else if (provider === 'microsoft') scope = ['openid', 'profile', 'email', 'user.read'];
-    else if (provider === 'linkedin') scope = ['openid', 'profile', 'email'];
-    else scope = ['profile', 'email'];
-
-    // Force State FALSE to prevent session creation
-    return passport.authenticate(provider, { scope, state: false });
-};
-
-// 2. Social Callback (The Fix)
-exports.socialCallback = (provider) => {
-    return (req, res, next) => {
-        // 🔨 SLEDGEHAMMER FIX:
-        // If LinkedIn sends a 'state' parameter, delete it so Passport doesn't look for a session.
-        if (req.query && req.query.state) {
-            delete req.query.state; 
+// ------------------------------------------------------------------
+// 🚀 MANUAL LINKEDIN LOGIC (Bypasses Passport Session Issues)
+// ------------------------------------------------------------------
+const handleLinkedInManual = async (req, res) => {
+    try {
+        const { code } = req.query;
+        
+        // 1. If no code, start the login process
+        if (!code) {
+            const redirectUri = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://youtool.com/api/auth/linkedin/callback')}&scope=openid%20profile%20email&state=manual_bypass`;
+            return res.redirect(redirectUri);
         }
 
-        passport.authenticate(provider, { session: false, state: false }, (err, user, info) => {
+        // 2. If code exists, swap it for a Token
+        const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
+            params: {
+                grant_type: 'authorization_code',
+                code,
+                redirect_uri: 'https://youtool.com/api/auth/linkedin/callback',
+                client_id: process.env.LINKEDIN_CLIENT_ID,
+                client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        const accessToken = tokenResponse.data.access_token;
+
+        // 3. Get User Profile
+        const userResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        const profile = userResponse.data;
+
+        if (!profile.email) throw new Error("No email found in LinkedIn profile");
+
+        // 4. Find or Create User in DB
+        let user = await prisma.user.findUnique({ where: { email: profile.email } });
+        if (!user) {
+            user = await prisma.user.create({
+                data: {
+                    email: profile.email,
+                    name: profile.name || "LinkedIn User",
+                    role: 'USER',
+                    isActive: true
+                }
+            });
+        }
+
+        // 5. Success! Redirect to Dashboard
+        const token = generateToken(user);
+        res.redirect(`${process.env.FRONTEND_URL}/signin?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+
+    } catch (error) {
+        console.error("LinkedIn Manual Auth Error:", error.response?.data || error.message);
+        res.redirect(`${process.env.FRONTEND_URL}/signin?error=auth_failed`);
+    }
+};
+
+// ------------------------------------------------------------------
+// STANDARD PASSPORT LOGIC (Google, Facebook, Microsoft)
+// ------------------------------------------------------------------
+
+exports.socialLogin = (provider) => {
+    return (req, res, next) => {
+        // 🚀 HIJACK LINKEDIN
+        if (provider === 'linkedin') return handleLinkedInManual(req, res);
+
+        let scope;
+        if (provider === 'facebook') scope = ['public_profile', 'email'];
+        else if (provider === 'microsoft') scope = ['openid', 'profile', 'email', 'user.read'];
+        else scope = ['profile', 'email'];
+
+        passport.authenticate(provider, { scope })(req, res, next);
+    };
+};
+
+exports.socialCallback = (provider) => {
+    return (req, res, next) => {
+        // 🚀 HIJACK LINKEDIN
+        if (provider === 'linkedin') return handleLinkedInManual(req, res);
+
+        passport.authenticate(provider, { session: false }, (err, user, info) => {
             if (err || !user) {
-                console.error(`[Auth Failed] ${provider}:`, err);
-                // Redirect to frontend with error
                 return res.redirect(`${process.env.FRONTEND_URL}/signin?error=auth_failed`);
             }
-
-            // Success: Generate Token & Redirect
             const token = generateToken(user);
             res.redirect(`${process.env.FRONTEND_URL}/signin?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
         })(req, res, next);
