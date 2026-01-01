@@ -28,12 +28,10 @@ const Login = ({ onLoginSuccess }) => {
             return;
         }
         
-        // Redirect Office 365 and Live ID to the unified 'microsoft' route
         const backendProvider = (provider === 'office365' || provider === 'liveid') 
             ? 'microsoft' 
             : provider;
 
-        // Note: The new buttons (tiktok, instagram, etc.) will 404 until we update the backend!
         window.location.href = `/api/auth/${backendProvider}`;
     };
 
@@ -45,13 +43,17 @@ const Login = ({ onLoginSuccess }) => {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             const userName = response.data.user.name.split(' ')[0];
-            setMessage('✅ Success! Welcome back, ' + userName + '.');
+            
+            // 🚀 FIXED: Removed raw emoji to prevent build error
+            setMessage('Success! Welcome back, ' + userName + '.');
+            
             setTimeout(() => {
                 if (onLoginSuccess) onLoginSuccess(response.data.user);
                 window.location.href = '/dashboard';
             }, 1000);
         } catch (error) {
-            setMessage(⚠️ Sign in failed. Check your credentials.');
+            // 🚀 FIXED: Removed raw emoji to prevent build error
+            setMessage('Sign in failed. Check your credentials.');
         }
     };
 
@@ -102,7 +104,6 @@ const Login = ({ onLoginSuccess }) => {
                 <div style={{ width: '100%', maxWidth: '450px', textAlign: 'center' }}>
                     <h2 style={{ fontSize: '2.8rem', fontWeight: '900', color: '#0366d6', margin: "0 0 30px 0", letterSpacing: '-2px' }}>YouTool</h2>
                     
-                    {/* 🚀 NEW 10-BUTTON GRID */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
                         
                         {/* ROW 1: Facebook | Instagram */}
@@ -146,7 +147,6 @@ const Login = ({ onLoginSuccess }) => {
                         </button>
 
                     </div>
-                    {/* END GRID */}
 
                     <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', color: '#e1e4e8' }}>
                         <hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} /><span style={{ padding: '0 16px', fontSize: '12px', color: '#6a737d', fontWeight: '600' }}>OR EMAIL</span><hr style={{ flex: 1, border: '0.5px solid #e1e4e8' }} />
@@ -155,8 +155,9 @@ const Login = ({ onLoginSuccess }) => {
                         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={inputStyle} required />
                         <div style={{ position: 'relative', width: '100%' }}>
                             <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" style={inputStyle} required />
-                            <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '14px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#718096' }}>
-                                {showPassword ? '👁️' : '⊙'} 
+                            <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '14px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#718096', fontWeight:'bold' }}>
+                                {/* 🚀 FIXED: Replaced emoji with text "Show/Hide" */}
+                                {showPassword ? 'Hide' : 'Show'} 
                             </button>
                         </div>
                         <button type="submit" style={{ width: '100%', padding: '16px', backgroundColor: isSignInHover ? '#005cc5' : '#0366d6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: '700', marginTop: '10px' }} onMouseEnter={() => setIsSignInHover(true)} onMouseLeave={() => setIsSignInHover(false)}>Sign In</button>
@@ -167,7 +168,7 @@ const Login = ({ onLoginSuccess }) => {
                         <a href="/register" style={{ color: '#0366d6', textDecoration: 'none', fontWeight: '600' }}>Create account</a>
                     </div>
                     {message && (
-                        <div style={{ marginTop: '25px', padding: '16px', borderRadius: '6px', backgroundColor: '#ffffff', border: '1px solid #edf2f7', borderLeft: `5px solid ${message.includes('✅') ? '#22863a' : '#d73a49'}`, color: '#2d3748', fontSize: '14px' }}>{message}</div>
+                        <div style={{ marginTop: '25px', padding: '16px', borderRadius: '6px', backgroundColor: '#ffffff', border: '1px solid #edf2f7', borderLeft: `5px solid ${message.includes('Success') ? '#22863a' : '#d73a49'}`, color: '#2d3748', fontSize: '14px' }}>{message}</div>
                     )}
                 </div>
             </div>
