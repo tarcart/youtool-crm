@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const session = require('express-session'); // <--- 1. Import Session
+const session = require('express-session');
 const passport = require('./config/passportConfig');
 const prisma = require('./prismaClient');
 
@@ -18,7 +18,7 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-// 2. STABLE CORS Configuration
+// STABLE CORS Configuration
 app.use(cors({
     origin: '*', 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -28,21 +28,20 @@ app.use(cors({
 
 app.use(express.json());
 
-// 🚀 3. CRITICAL: Session Middleware (Must be BEFORE passport.initialize)
+// Session Middleware (Required for Passport)
 app.use(session({
     secret: 'youtool_social_secret',
     resave: false,
     saveUninitialized: false
 }));
 
-// 4. INITIALIZE PASSPORT
+// INITIALIZE PASSPORT
 app.use(passport.initialize());
-// app.use(passport.session()); // Not strictly needed for JWT, but the middleware above is key
 
-// 5. HEARTBEAT
+// HEARTBEAT
 app.get('/', (req, res) => res.json({ status: "YouTool API is LIVE" }));
 
-// 6. ATTACH ROUTES
+// ATTACH ROUTES
 app.use('/api/auth', authRoutes);        
 app.use('/api/contacts', contactRoutes);
 app.use('/api/organizations', orgRoutes);
@@ -53,9 +52,10 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 
-const PORT = process.env.PORT || 5000;
+// FORCE PORT 5001 - Bypassing broken env variables
+const PORT = 5001;
 
-// 7. ROBUST STARTUP
+// ROBUST STARTUP
 async function startServer() {
     console.log("⏳ Starting YouTool Engine...");
     try {
