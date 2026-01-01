@@ -2,13 +2,12 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const MicrosoftStrategy = require('passport-microsoft').Strategy;
-// 🚀 NEW: LinkedIn Strategy
 const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Serialize/Deserialize for session-less JWT setup
+// Serialize/Deserialize
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
     try {
@@ -19,23 +18,36 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-// Common Logic for Finding or Creating a User
+// 🧠 SMARTER USER FINDER (Handles different email locations)
 const findOrCreateUser = async (profile, done) => {
     try {
-        // LinkedIn puts emails in a slightly different spot, so we check both
-        const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
+        console.log(`[Auth Debug] Processing login for provider: ${profile.provider}`);
+        
+        // 🚀 FIX: Look for email in ALL possible places (OIDC vs Legacy)
+        const email = 
+            (profile.emails && profile.emails[0] ? profile.emails[0].value : null) || 
+            profile.email || 
+            (profile._json ? profile._json.email : null);
+
+        // 🚀 FIX: Look for name in ALL possible places
+        const name = 
+            profile.displayName || 
+            (profile.name ? `${profile.name.givenName} ${profile.name.familyName}` : null) || 
+            (profile._json ? profile._json.name : "User");
 
         if (!email) {
+            console.error("[Auth Error] No email found in profile:", profile);
             return done(new Error("No email found from provider"), null);
         }
 
         let user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
+            console.log(`[Auth Debug] Creating new user for ${email}`);
             user = await prisma.user.create({
                 data: {
                     email: email,
-                    name: profile.displayName || `${profile.name.givenName} ${profile.name.familyName}`,
+                    name: name,
                     passwordHash: null, 
                     role: 'USER',
                     isActive: true, 
@@ -72,14 +84,13 @@ passport.use(new MicrosoftStrategy({
     scope: ['user.read']
 }, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
 
-// 4. LINKEDIN STRATEGY
+// 4. LinkedIn Strategy (Updated for OpenID)
 passport.use(new LinkedInStrategy({
     clientID: process.env.LINKEDIN_CLIENT_ID,
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
     callbackURL: "https://youtool.com/api/auth/linkedin/callback",
-    // 🚀 FIXED: Use modern OpenID scopes instead of legacy ones
-    scope: ['openid', 'profile', 'email'],
-    state: false
+    scope: ['openid', 'profile', 'email'], // Modern Scopes
+    state: false 
 }, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
 
 module.exports = passport;
