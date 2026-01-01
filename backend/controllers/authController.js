@@ -16,35 +16,34 @@ const generateToken = (user) => {
 // Initiate Social Login
 exports.socialLogin = (provider) => {
     let scope;
-
-    // Define permissions for each platform
     if (provider === 'facebook') {
         scope = ['public_profile', 'email'];
     } else if (provider === 'microsoft') {
         scope = ['openid', 'profile', 'email', 'user.read'];
     } else if (provider === 'linkedin') {
         scope = ['openid', 'profile', 'email'];
-        // 🚀 Ensure this is also false
-        return passport.authenticate(provider, { scope, state: false });
     } else {
-        // Default (Google)
         scope = ['profile', 'email'];
     }
 
+    // Standard authenticate (no manual state override needed anymore)
     return passport.authenticate(provider, { scope });
 };
 
 // Handle Provider Callback
 exports.socialCallback = (provider) => {
     return (req, res, next) => {
-        // 🚀 FIXED: Added 'state: false' here so it doesn't look for a session
-        passport.authenticate(provider, { session: false, state: false }, (err, user, info) => {
+        // Standard authenticate (Session middleware handles the state check now)
+        passport.authenticate(provider, { session: false }, (err, user, info) => {
             if (err || !user) {
+                console.error(`[Auth Failed] Provider: ${provider}`, err);
                 return res.redirect(`${process.env.FRONTEND_URL}/signin?error=auth_failed`);
             }
 
+            // Generate JWT
             const token = generateToken(user);
             
+            // Redirect to Dashboard
             res.redirect(`${process.env.FRONTEND_URL}/signin?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
         })(req, res, next);
     };

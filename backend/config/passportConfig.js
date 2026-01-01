@@ -7,7 +7,6 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Serialize/Deserialize
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
     try {
@@ -18,26 +17,26 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-// 🧠 SMARTER USER FINDER (Handles different email locations)
+// 🧠 UNIVERSAL USER FINDER
 const findOrCreateUser = async (profile, done) => {
     try {
         console.log(`[Auth Debug] Processing login for provider: ${profile.provider}`);
         
-        // 🚀 FIX: Look for email in ALL possible places (OIDC vs Legacy)
+        // Robust Email Finding
         const email = 
             (profile.emails && profile.emails[0] ? profile.emails[0].value : null) || 
             profile.email || 
             (profile._json ? profile._json.email : null);
 
-        // 🚀 FIX: Look for name in ALL possible places
+        // Robust Name Finding
         const name = 
             profile.displayName || 
             (profile.name ? `${profile.name.givenName} ${profile.name.familyName}` : null) || 
             (profile._json ? profile._json.name : "User");
 
         if (!email) {
-            console.error("[Auth Error] No email found in profile:", profile);
-            return done(new Error("No email found from provider"), null);
+            console.error("[Auth Error] No email found:", profile);
+            return done(null, false, { message: "No email found" });
         }
 
         let user = await prisma.user.findUnique({ where: { email } });
@@ -56,41 +55,41 @@ const findOrCreateUser = async (profile, done) => {
         }
         return done(null, user);
     } catch (err) {
-        console.error("Prisma Error during social login:", err);
+        console.error("Prisma Error:", err);
         return done(err, null);
     }
 };
 
-// 1. Google Strategy
+// 1. Google
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "https://youtool.com/api/auth/google/callback"
-}, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
+}, (token, tokenSecret, profile, done) => findOrCreateUser(profile, done)));
 
-// 2. Facebook Strategy
+// 2. Facebook
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: "https://youtool.com/api/auth/facebook/callback",
     profileFields: ['id', 'displayName', 'emails', 'name']
-}, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
+}, (token, tokenSecret, profile, done) => findOrCreateUser(profile, done)));
 
-// 3. Microsoft Strategy
+// 3. Microsoft
 passport.use(new MicrosoftStrategy({
     clientID: process.env.MICROSOFT_CLIENT_ID,
     clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
     callbackURL: "https://youtool.com/api/auth/microsoft/callback",
     scope: ['user.read']
-}, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
+}, (token, tokenSecret, profile, done) => findOrCreateUser(profile, done)));
 
-// 4. LinkedIn Strategy (Updated for OpenID)
+// 4. LinkedIn (Clean Standard Config)
 passport.use(new LinkedInStrategy({
     clientID: process.env.LINKEDIN_CLIENT_ID,
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
     callbackURL: "https://youtool.com/api/auth/linkedin/callback",
-    scope: ['openid', 'profile', 'email'], // Modern Scopes
-    state: false 
-}, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
+    scope: ['openid', 'profile', 'email'],
+    state: true // 🚀 WE NOW USE STATE because we added Session support
+}, (token, tokenSecret, profile, done) => findOrCreateUser(profile, done)));
 
 module.exports = passport;
