@@ -7,7 +7,6 @@ const prisma = require('./prismaClient');
 
 // Import Route Files
 const authRoutes = require('./routes/auth');
-const socialAuthRoutes = require('./routes/authRoutes');
 const contactRoutes = require('./routes/contacts');
 const orgRoutes = require('./routes/organizations');
 const oppRoutes = require('./routes/opportunities');
@@ -44,8 +43,7 @@ app.use(passport.initialize());
 app.get('/', (req, res) => res.json({ status: "YouTool API is LIVE" }));
 
 // 6. ATTACH ROUTES
-app.use('/api/auth', authRoutes);       
-app.use('/api/auth', socialAuthRoutes); 
+app.use('/api/auth', authRoutes);        
 app.use('/api/contacts', contactRoutes);
 app.use('/api/organizations', orgRoutes);
 app.use('/api/opportunities', oppRoutes);
