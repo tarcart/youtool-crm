@@ -5,16 +5,11 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const prisma = new PrismaClient();
-
-// 🚀 CRITICAL IMPORT: This connects to the Social Logic we built earlier
 const authController = require('../controllers/authController'); 
 
-// Define Salt Rounds for Password Hashing
 const saltRounds = 10;
 
-// ==========================================
-// 1. EMAIL TRANSPORTER SETUP (Brevo)
-// ==========================================
+// EMAIL TRANSPORTER (Brevo)
 const transporter = nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
     port: 2525,
@@ -25,9 +20,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// ==========================================
-// 2. LOCAL LOGIN ROUTE (Email/Password)
-// ==========================================
+// 1. LOCAL LOGIN
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -37,7 +30,6 @@ router.post('/login', async (req, res) => {
         const match = await bcrypt.compare(password, user.passwordHash);
         if (!match) return res.status(401).json({ error: 'Invalid password' });
 
-        // Generate Token with Role
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role, companyId: user.companyId }, 
             process.env.JWT_SECRET, 
@@ -51,9 +43,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// ==========================================
-// 3. FORGOT & RESET PASSWORD ROUTES
-// ==========================================
+// 2. PASSWORD RESET ROUTES
 router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     try {
@@ -92,21 +82,18 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
-// ==========================================
-// 4. SOCIAL LOGIN ROUTES (Google, Facebook, Microsoft)
-// ==========================================
-// These are the lines that were missing!
-
-// Google
+// 3. SOCIAL LOGIN ROUTES
 router.get('/google', authController.socialLogin('google'));
 router.get('/google/callback', authController.socialCallback('google'));
 
-// Facebook
 router.get('/facebook', authController.socialLogin('facebook'));
 router.get('/facebook/callback', authController.socialCallback('facebook'));
 
-// Microsoft / Office 365 / Live ID
 router.get('/microsoft', authController.socialLogin('microsoft'));
 router.get('/microsoft/callback', authController.socialCallback('microsoft'));
+
+// 🚀 NEW: LinkedIn Routes
+router.get('/linkedin', authController.socialLogin('linkedin'));
+router.get('/linkedin/callback', authController.socialCallback('linkedin'));
 
 module.exports = router;
