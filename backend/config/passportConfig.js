@@ -72,13 +72,13 @@ passport.use(new MicrosoftStrategy({
     scope: ['user.read']
 }, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
 
-// 4. 🚀 NEW: LinkedIn Strategy
+// 4. LINKEDIN STRATEGY
 passport.use(new LinkedInStrategy({
     clientID: process.env.LINKEDIN_CLIENT_ID,
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
     callbackURL: "https://youtool.com/api/auth/linkedin/callback",
     scope: ['r_emailaddress', 'r_liteprofile'],
-    state: true // LinkedIn requires this for security
+    state: false  // <--- 🚀 CRITICAL FIX: Disable session-based state check
 }, (accessToken, refreshToken, profile, done) => findOrCreateUser(profile, done)));
 
 module.exports = passport;
