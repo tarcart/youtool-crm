@@ -5,7 +5,7 @@ const session = require('express-session');
 const passport = require('./config/passportConfig');
 const prisma = require('./prismaClient');
 
-// Import Route Files
+// Import Route Files - Verified matching your local folder
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contacts');
 const orgRoutes = require('./routes/organizations');
@@ -18,7 +18,6 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-// STABLE CORS Configuration
 app.use(cors({
     origin: '*', 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -28,17 +27,14 @@ app.use(cors({
 
 app.use(express.json());
 
-// Session Middleware (Required for Passport)
 app.use(session({
     secret: 'youtool_social_secret',
     resave: false,
     saveUninitialized: false
 }));
 
-// INITIALIZE PASSPORT
 app.use(passport.initialize());
 
-// HEARTBEAT
 app.get('/', (req, res) => res.json({ status: "YouTool API is LIVE" }));
 
 // ATTACH ROUTES
@@ -52,15 +48,12 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 
-// FORCE PORT 5001 - Bypassing broken env variables
+// FIXED PORT 5001 for Digital Ocean Nginx
 const PORT = 5001;
 
-// ROBUST STARTUP
 async function startServer() {
-    console.log("⏳ Starting YouTool Engine...");
     try {
         await prisma.$connect();
-        console.log("✔ YouTool: Digital Ocean Connection Established");
         app.listen(PORT, () => console.log(`🚀 YouTool LIVE on port ${PORT}`));
     } catch (err) {
         console.error("✘ CRITICAL DB ERROR:", err.message);
