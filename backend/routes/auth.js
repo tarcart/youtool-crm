@@ -20,7 +20,9 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// ------------------------------------------------------------------
 // 1. LOCAL LOGIN
+// ------------------------------------------------------------------
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -43,7 +45,9 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// ------------------------------------------------------------------
 // 2. PASSWORD RESET ROUTES
+// ------------------------------------------------------------------
 router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     try {
@@ -82,18 +86,36 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
+// ------------------------------------------------------------------
 // 3. SOCIAL LOGIN ROUTES
+// ------------------------------------------------------------------
+
+// Google
 router.get('/google', authController.socialLogin('google'));
 router.get('/google/callback', authController.socialCallback('google'));
 
+// Facebook
 router.get('/facebook', authController.socialLogin('facebook'));
 router.get('/facebook/callback', authController.socialCallback('facebook'));
 
+// Microsoft
 router.get('/microsoft', authController.socialLogin('microsoft'));
 router.get('/microsoft/callback', authController.socialCallback('microsoft'));
 
-// 🚀 NEW: LinkedIn Routes
+// LinkedIn
 router.get('/linkedin', authController.socialLogin('linkedin'));
 router.get('/linkedin/callback', authController.socialCallback('linkedin'));
+
+// 🚀 Instagram (Added)
+router.get('/instagram', authController.socialLogin('instagram'));
+router.get('/instagram/callback', authController.socialCallback('instagram'));
+
+// 🚀 Twitter (Added to match your controller)
+router.get('/twitter', authController.socialLogin('twitter'));
+router.get('/twitter/callback', authController.socialCallback('twitter'));
+
+// 🚀 TikTok (Added to match your controller)
+router.get('/tiktok', authController.socialLogin('tiktok'));
+router.get('/tiktok/callback', authController.socialCallback('tiktok'));
 
 module.exports = router;

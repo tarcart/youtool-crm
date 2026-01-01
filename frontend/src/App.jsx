@@ -29,34 +29,58 @@ const App = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // 🔒 SESSION HYDRATION - Loads user on page load/refresh
+    // 🔒 SESSION HYDRATION & URL INTERCEPTOR
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const savedUser = localStorage.getItem('user');
-        
-        if (token && savedUser) {
-            try {
-                setUser(JSON.parse(savedUser));
-            } catch (err) {
-                console.error("Failed to parse saved user:", err);
-                localStorage.removeItem('user');
-                localStorage.removeItem('token');
+        const initializeAuth = () => {
+            // 1. Check if we just arrived from a Social Login (Instagram/LinkedIn) redirect
+            const params = new URLSearchParams(window.location.search);
+            const urlToken = params.get('token');
+            const urlUser = params.get('user');
+
+            if (urlToken && urlUser) {
+                try {
+                    const parsedUser = JSON.parse(decodeURIComponent(urlUser));
+                    
+                    // Save to localStorage for persistence
+                    localStorage.setItem('token', urlToken);
+                    localStorage.setItem('user', urlUser);
+                    
+                    // Update State
+                    setUser(parsedUser);
+                    
+                    // Clean the URL bar so the token isn't visible in history
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    
+                    setLoading(false);
+                    return; // Stop here, auth is complete
+                } catch (err) {
+                    console.error("Failed to parse user from redirect URL:", err);
+                }
             }
-        }
-        setLoading(false);
+
+            // 2. Standard hydration from localStorage (for normal page refreshes)
+            const token = localStorage.getItem('token');
+            const savedUser = localStorage.getItem('user');
+            
+            if (token && savedUser) {
+                try {
+                    setUser(JSON.parse(savedUser));
+                } catch (err) {
+                    console.error("Failed to parse saved user from storage:", err);
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                }
+            }
+            setLoading(false);
+        };
+
+        initializeAuth();
     }, []);
 
-    // 🚀 THE FIX: Force a hard browser reload instead of a soft state update
     const handleLoginSuccess = (userData) => {
-        // 1. Save data to localStorage (Critical)
         localStorage.setItem('user', JSON.stringify(userData));
-        // Ensure token is preserved if it wasn't already
         const token = localStorage.getItem('token');
         if (token) localStorage.setItem('token', token);
-
-        // 2. FORCE BROWSER RELOAD
-        // This bypasses React's state delay and forces the App to restart
-        // with the user logged in. 100% reliability for the "Refresh" bug.
         window.location.href = '/dashboard';
     };
 
@@ -68,12 +92,19 @@ const App = () => {
     };
 
     const ProtectedRoute = ({ children }) => {
-        if (loading) return <div>Loading...</div>;
+        // Wait for initializeAuth to finish before deciding to redirect
+        if (loading) return (
+            <div style={{display:'flex', justifyContent:'center', alignItems:'center', height:'100vh'}}>
+                <div style={{color:'#d94d11', fontWeight:'bold'}}>Initializing Session...</div>
+            </div>
+        );
+        
+        // If no user is found after loading, bounce to signin
         if (!user) return <Navigate to="/signin" replace />;
         return children;
     };
 
-    if (loading) return <div>Loading session...</div>;
+    if (loading) return null; // Prevents flickering before hydration
 
     return (
         <Routes>
@@ -148,6 +179,7 @@ const MainAppLayout = ({ user, onLogout }) => {
             setProjects(pRes?.data || []); setTasks(tRes?.data || []);
         } catch (err) { console.error("Fetch error:", err); }
     };
+    
     useEffect(() => { if (user) fetchData(); }, [user, searchQuery]);
 
     const currentData = (() => {

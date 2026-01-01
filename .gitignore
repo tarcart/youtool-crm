@@ -1,0 +1,22 @@
+# Secrets and Environment
+.env
+.env.save
+.env.save.*
+*.save
+node_modules/
+dist/
+
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pm2/
+logs/
+
+# Misc
+.DS_Store
