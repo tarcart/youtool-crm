@@ -23,8 +23,9 @@ exports.socialLogin = (provider) => {
     } else if (provider === 'microsoft') {
         scope = ['openid', 'profile', 'email', 'user.read'];
     } else if (provider === 'linkedin') {
-        // 🚀 FIXED: Update to match the new OpenID standard
         scope = ['openid', 'profile', 'email'];
+        // 🚀 Ensure this is also false
+        return passport.authenticate(provider, { scope, state: false });
     } else {
         // Default (Google)
         scope = ['profile', 'email'];
@@ -36,7 +37,8 @@ exports.socialLogin = (provider) => {
 // Handle Provider Callback
 exports.socialCallback = (provider) => {
     return (req, res, next) => {
-        passport.authenticate(provider, { session: false }, (err, user, info) => {
+        // 🚀 FIXED: Added 'state: false' here so it doesn't look for a session
+        passport.authenticate(provider, { session: false, state: false }, (err, user, info) => {
             if (err || !user) {
                 return res.redirect(`${process.env.FRONTEND_URL}/signin?error=auth_failed`);
             }
