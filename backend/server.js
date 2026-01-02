@@ -5,7 +5,6 @@ const session = require('express-session');
 const passport = require('./config/passportConfig');
 const prisma = require('./prismaClient');
 
-// Import Route Files
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contacts');
 const orgRoutes = require('./routes/organizations');
@@ -18,9 +17,9 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-// 2. STABLE CORS Configuration
+// 1. CORS: Crucial for Cross-Port communication
 app.use(cors({
-    origin: '*',
+    origin: ['http://localhost:5173', 'https://youtool.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
@@ -28,22 +27,27 @@ app.use(cors({
 
 app.use(express.json());
 
-// 3. Session Middleware (Must be BEFORE passport.initialize)
+// 2. HARDENED SESSION: Prevents "Something went wrong" on X redirect
 app.use(session({
-    secret: 'youtool_social_secret',
-    resave: false,
-    saveUninitialized: false
+    name: 'youtool.sid',
+    secret: process.env.JWT_SECRET || 'youtool_emergency_secret',
+    resave: true,
+    saveUninitialized: true,
+    proxy: true, // Required for redirects
+    cookie: {
+        secure: false, // Must be false for localhost HTTP
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 
+    }
 }));
 
-// 4. INITIALIZE PASSPORT
 app.use(passport.initialize());
+app.use(passport.session());
 
-// 5. HEARTBEAT
 app.get('/', (req, res) => res.json({ status: "YouTool API is LIVE" }));
 
-// 6. ATTACH ROUTES
 app.use('/api/auth', authRoutes);
-// REMOVED: socialAuthRoutes line that was causing the crash
 app.use('/api/contacts', contactRoutes);
 app.use('/api/organizations', orgRoutes);
 app.use('/api/opportunities', oppRoutes);
@@ -53,10 +57,8 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 
-// FORCE PORT 5001
 const PORT = 5001;
 
-// 7. ROBUST STARTUP
 async function startServer() {
     console.log("⏳ Starting YouTool Engine...");
     try {
