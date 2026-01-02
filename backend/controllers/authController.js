@@ -35,7 +35,7 @@ const finishLogin = async (res, email, name) => {
         
         // 🚀 THE FIX: Explicitly redirect back to the FRONTEND (Port 5173)
         // We pass the token and user data in the URL for the AuthPage.jsx to grab
-        const frontendBase = "http://localhost:5173"; 
+        const frontendBase = process.env.FRONTEND_URL || 'https://youtool.com'; 
         const redirectUrl = `${frontendBase}/signin?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`;
         
         console.log("[Auth] Redirecting to Frontend...");
