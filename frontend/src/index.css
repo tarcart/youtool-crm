@@ -1,0 +1,31 @@
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* 1. FORCE THE PAGE TO BE WHITE & FULL WIDTH */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #ffffff; /* This fixes the black void */
+  color: #1f2937; /* Default dark text */
+  display: block; /* CRITICAL: This stops the app from floating in the center */
+  overflow-x: hidden;
+}
+
+/* 2. FORCE THE REACT APP TO FILL THE SCREEN */
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left; /* Resets any default centering */
+}
+
+/* 3. RESET BUTTONS TO LOOK MODERN */
+button {
+  cursor: pointer;
+  font-family: inherit;
+}

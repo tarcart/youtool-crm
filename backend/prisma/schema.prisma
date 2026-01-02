@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(255)
+  status        String          @default("Active") @db.VarChar(50)
+  isActive      Boolean         @default(true) // <--- NEW: The "On/Off" Switch
+  users         User[]
+  contacts      Contact[]
+  organizations Organization[]
+  opportunities Opportunity[]
+  layouts       CompanyLayout[]
+  @@map("companies")
+}
+
+model CompanyLayout {
+  id        Int     @id @default(autoincrement())
+  name      String
+  config    Json
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique @db.VarChar(255)
+  
+  // 1. Added '?' to make password optional for social users
+  passwordHash String?    @db.VarChar(255) 
+  
+  name         String     @db.VarChar(255) 
+  role         String     @db.VarChar(50)
+  isActive     Boolean    @default(false)
+  emailToken   String?    
+  resetToken        String? @unique
+  resetTokenExpires DateTime?
+
+  // 2. Added '?' to companyId to allow social users to join before being assigned a company
+  companyId    Int?
+  company      Company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activities   Activity[]
+  
+  @@map("users")
+}
+
+model Contact {
+  id          Int     @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  email       String?
+  jobTitle    String?
+  department  String?
+  phone       String?
+  mobile      String?
+  linkedinUrl String?
+  address     String?
+  city        String?
+  state       String?
+  zip         String?
+  status      String  @default("Lead")
+  organizationId Int?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  opportunities  Opportunity[]
+  activities     Activity[]
+  links          ContactLink[]
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Organization {
+  id            Int                @id @default(autoincrement())
+  name          String
+  industry      String?
+  website       String?
+  contacts      Contact[]
+  opportunities Opportunity[]
+  links         OrganizationLink[]
+  companyId     Int
+  company       Company            @relation(fields: [companyId], references: [id])
+  createdAt     DateTime           @default(now())
+}
+
+model Opportunity {
+  id            Int       @id @default(autoincrement())
+  name          String
+  value         Float
+  stage         String    @default("Prospecting")
+  probability   Int       @default(10)
+  expectedClose DateTime?
+  companyId     Int
+  company       Company   @relation(fields: [companyId], references: [id])
+  contactId Int?
+  contact   Contact? @relation(fields: [contactId], references: [id])
+  organizationId Int?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  links OpportunityLink[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  type        String
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+  contactId   Int
+  contact     Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  @@map("activities")
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  name        String
+  status      String        @default("In Progress")
+  description String?
+  links       ProjectLink[]
+  createdAt   DateTime      @default(now())
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  subject     String
+  dueDate     String?
+  priority    String     @default("Normal")
+  description String?
+  status      String     @default("Open")
+  links       TaskLink[]
+  createdAt   DateTime   @default(now())
+}
+
+model OpportunityLink {
+  id            Int         @id @default(autoincrement())
+  opportunityId Int
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  targetType    String
+  targetName    String
+  role          String?
+  createdAt     DateTime    @default(now())
+}
+
+model ContactLink {
+  id         Int      @id @default(autoincrement())
+  contactId  Int
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  targetType String
+  targetName String
+  role       String?
+  createdAt  DateTime @default(now())
+}
+
+model OrganizationLink {
+  id             Int          @id @default(autoincrement())
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  targetType     String
+  targetName     String
+  role           String?
+  createdAt      DateTime     @default(now())
+}
+
+model TaskLink {
+  id         Int      @id @default(autoincrement())
+  taskId     Int
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  targetType String
+  targetName String
+  role       String?
+  createdAt  DateTime @default(now())
+}
+
+model ProjectLink {
+  id         Int      @id @default(autoincrement())
+  projectId  Int
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  targetType String
+  targetName String
+  role       String?
+  createdAt  DateTime @default(now())
+}
+
+model SavedReport {
+  id          Int      @id @default(autoincrement())
+  name        String
+  queryConfig String
+  createdBy   Int
+  createdAt   DateTime @default(now())
+}
