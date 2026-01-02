@@ -4,6 +4,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const MicrosoftStrategy = require('passport-microsoft').Strategy;
 const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const TwitterStrategy = require('passport-twitter-oauth2').Strategy; 
+const TikTokStrategy = require('passport-tiktok-auth').Strategy; // 👈 New Import
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -21,13 +22,9 @@ passport.deserializeUser(async (id, done) => {
 const findOrCreateUser = async (profile, done) => {
     try {
         console.log(`[Auth Debug] Provider: ${profile.provider}`);
-        const email = profile.emails?.[0]?.value || profile._json?.email;
-        const name = profile.displayName || "Auth User";
-
-        if (!email) {
-            console.error(`${profile.provider} did not provide an email.`);
-            return done(null, false);
-        }
+        // TikTok doesn't always provide an email; we create a fallback if missing
+        const email = profile.emails?.[0]?.value || profile._json?.email || `${profile.id}@tiktok.user`;
+        const name = profile.displayName || "TikTok User";
 
         let user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
@@ -41,11 +38,10 @@ const findOrCreateUser = async (profile, done) => {
     }
 };
 
-// 🚀 GOOGLE OAUTH 2.0 STRATEGY
+// 🚀 GOOGLE STRATEGY
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    // Dynamically uses .env callback or defaults to local
     callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:5001/api/auth/google/callback"
 }, (accessToken, refreshToken, profile, done) => {
     findOrCreateUser(profile, done);
@@ -61,7 +57,17 @@ passport.use(new FacebookStrategy({
     findOrCreateUser(profile, done);
 }));
 
-// 🚀 X (TWITTER) OAUTH 2.0 STRATEGY
+// 🚀 TIKTOK STRATEGY
+passport.use(new TikTokStrategy({
+    clientID: process.env.TIKTOK_CLIENT_KEY, // TikTok calls this Client Key
+    clientSecret: process.env.TIKTOK_CLIENT_SECRET,
+    callbackURL: process.env.TIKTOK_CALLBACK_URL || "http://localhost:5001/api/auth/tiktok/callback",
+    scope: ['user.info.basic'],
+}, (accessToken, refreshToken, profile, done) => {
+    findOrCreateUser(profile, done);
+}));
+
+// 🚀 X (TWITTER) STRATEGY
 passport.use(new TwitterStrategy({
     clientID: process.env.X_CLIENT_ID || process.env.TWITTER_CLIENT_ID,
     clientSecret: process.env.X_CLIENT_SECRET || process.env.TWITTER_CLIENT_SECRET,
