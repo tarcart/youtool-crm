@@ -1,32 +1,21 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import PublicNavbar from './PublicNavbar';
+import Footer from './Footer';
 
 const PublicLayout = () => {
     return (
-        <div style={{
-            minHeight: '100vh',
-            backgroundColor: '#ffffff',
-            fontFamily: "'Inter', system-ui, sans-serif",
-            color: '#1f2937',
-            overflowX: 'hidden'
-        }}>
-            <style>{`
-                * { box-sizing: border-box; }
-                
-                /* --- THE NO-JUMP FIX --- */
-                html { 
-                    overflow-y: scroll; /* Always show scrollbar track */
-                }
-                
-                body { margin: 0; padding: 0; }
-            `}</style>
-            
-            {/* Master Header */}
+        <div className="public-wrapper">
+            {/* 1. Header stays at the top, naturally */}
             <PublicNavbar />
 
-            {/* Page Content */}
-            <Outlet />
+            {/* 2. Main content area */}
+            <div className="main-content">
+                <Outlet />
+            </div>
+
+            {/* 3. Footer simply follows the content */}
+            <Footer />
         </div>
     );
 };

@@ -19,6 +19,8 @@ import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword'; 
 import AppleLaunch from './AppleLaunch';
+import PrivacyPolicy from './pages/Legal/PrivacyPolicy'; // Added
+import TermsOfUse from './pages/Legal/TermsOfUse'; // Added
 
 // COMPONENTS
 import CreateModal from './components/CreateModal';
@@ -32,7 +34,6 @@ const App = () => {
     // 🔒 SESSION HYDRATION & URL INTERCEPTOR
     useEffect(() => {
         const initializeAuth = () => {
-            // 1. Check if we just arrived from a Social Login (Instagram/LinkedIn) redirect
             const params = new URLSearchParams(window.location.search);
             const urlToken = params.get('token');
             const urlUser = params.get('user');
@@ -40,25 +41,17 @@ const App = () => {
             if (urlToken && urlUser) {
                 try {
                     const parsedUser = JSON.parse(decodeURIComponent(urlUser));
-                    
-                    // Save to localStorage for persistence
                     localStorage.setItem('token', urlToken);
                     localStorage.setItem('user', urlUser);
-                    
-                    // Update State
                     setUser(parsedUser);
-                    
-                    // Clean the URL bar so the token isn't visible in history
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    
                     setLoading(false);
-                    return; // Stop here, auth is complete
+                    return; 
                 } catch (err) {
                     console.error("Failed to parse user from redirect URL:", err);
                 }
             }
 
-            // 2. Standard hydration from localStorage (for normal page refreshes)
             const token = localStorage.getItem('token');
             const savedUser = localStorage.getItem('user');
             
@@ -92,22 +85,20 @@ const App = () => {
     };
 
     const ProtectedRoute = ({ children }) => {
-        // Wait for initializeAuth to finish before deciding to redirect
         if (loading) return (
             <div style={{display:'flex', justifyContent:'center', alignItems:'center', height:'100vh'}}>
                 <div style={{color:'#d94d11', fontWeight:'bold'}}>Initializing Session...</div>
             </div>
         );
-        
-        // If no user is found after loading, bounce to signin
         if (!user) return <Navigate to="/signin" replace />;
         return children;
     };
 
-    if (loading) return null; // Prevents flickering before hydration
+    if (loading) return null; 
 
     return (
         <Routes>
+            {/* 🏠 ORIGINAL PUBLIC LAYOUT: EXACTLY AS PER YOUR BACKUP */}
             <Route element={<PublicLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/solutions" element={<SolutionsPage />} />
@@ -118,6 +109,9 @@ const App = () => {
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
+                {/* Legal Pages added to original PublicLayout */}
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfUse />} />
             </Route>
 
             <Route path="/signin" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />

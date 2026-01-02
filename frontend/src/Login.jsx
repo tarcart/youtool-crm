@@ -23,17 +23,22 @@ const Login = ({ onLoginSuccess }) => {
     }, []);
 
     const handleSocialLogin = (provider) => {
-        if (provider === 'apple') {
-            window.location.href = '/apple-launch';
-            return;
-        }
-        
-        const backendProvider = (provider === 'office365' || provider === 'liveid') 
-            ? 'microsoft' 
-            : provider;
+    if (provider === 'apple') {
+        window.location.href = '/apple-launch';
+        return;
+    }
+    
+    const backendProvider = (provider === 'office365' || provider === 'liveid') 
+        ? 'microsoft' 
+        : provider;
 
-        window.location.href = `/api/auth/${backendProvider}`;
-    };
+    // 🚀 FIXED: Point directly to backend port on localhost, or use relative on production
+    const baseUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5001' 
+        : '';
+
+    window.location.href = `${baseUrl}/api/auth/${backendProvider}`;
+};
 
     const handleSubmit = async (e) => {
         e.preventDefault();
